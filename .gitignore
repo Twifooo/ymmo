@@ -1,0 +1,69 @@
+# --- Python ----------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+.Python
+.coverage
+.coverage.*
+htmlcov/
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# --- Virtualenvs -----------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+
+# --- Secrets / config locale -----------------------------------------
+.env
+.env.*
+!.env.example
+
+# --- Bases SQLite + instance Flask -----------------------------------
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# --- Uploads utilisateurs (générés au runtime) -----------------------
+ymmo/static/uploads/*
+!ymmo/static/uploads/.gitkeep
+
+# --- IDE / éditeurs --------------------------------------------------
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Outils LLM / agents ---------------------------------------------
+.claude/
+.claude.json
+.cursor/
+.aider*
+.continue/
+
+# --- Binaires Windows ------------------------------------------------
+*.exe
+*.dll
+*.pdb
+*.lib
+*.obj
+
+# --- Logs ------------------------------------------------------------
+*.log
+logs/
+
+# --- Babel : artefacts d'extraction ----------------------------------
+messages.pot
