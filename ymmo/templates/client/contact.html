@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_macros.html" import render_field %}
+{% block title %}{{ _("Contacter l'agence") }} — {{ prop.title }}{% endblock %}
+
+{% block content %}
+<header class="stack" style="margin-bottom: var(--s-6);">
+  <span class="eyebrow">{{ _("Contact") }} — {{ prop.agency.name }}</span>
+  <h1>{{ _("Contacter l'agence.") }}</h1>
+  <p class="lead">{{ _("À propos de :") }} <a href="{{ url_for('public.property_detail', property_id=prop.id) }}">{{ prop.title }}</a> · {{ prop.city }}.</p>
+</header>
+
+<form method="post" class="surface form" novalidate style="max-width: 720px;">
+  {{ form.csrf_token }}
+  {{ render_field(form.subject) }}
+  {{ render_field(form.body) }}
+  <div class="row">
+    <button type="submit" class="btn btn--primary">{{ form.submit.label.text }}</button>
+    <a href="{{ url_for('public.property_detail', property_id=prop.id) }}" class="btn btn--quiet">{{ _("Annuler") }}</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" preserveAspectRatio="xMidYMid slice">
+  <rect width="600" height="450" fill="#efe7d8"/>
+  <g fill="none" stroke="#b94a2c" stroke-width="2" stroke-linejoin="round" opacity=".55">
+    <path d="M180 320 L180 220 L300 130 L420 220 L420 320 Z"/>
+    <path d="M260 320 L260 250 L340 250 L340 320"/>
+    <path d="M180 220 L300 130 L420 220"/>
+  </g>
+  <text x="300" y="395" text-anchor="middle"
+        font-family="Georgia, serif" font-size="20" fill="#4b5663" font-style="italic">
+    photo à venir
+  </text>
+</svg>

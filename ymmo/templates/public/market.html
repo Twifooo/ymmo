@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Marché immobilier — Ymmo") }}{% endblock %}
+
+{% block content %}
+<header class="stack" style="margin-bottom: var(--s-7);">
+  <span class="eyebrow">{{ _("Données") }} · {{ _("Mises à jour en continu") }}</span>
+  <h1>{{ _("Tableau de bord du marché") }}</h1>
+  <p class="lead">{{ _("Indicateurs calculés en temps réel sur le portefeuille Ymmo.") }}</p>
+</header>
+
+{% set kpis = dashboard.kpis %}
+<section class="kpis" aria-label="{{ _('Indicateurs clés') }}">
+  <div class="kpi">
+    <div class="kpi__num">{{ kpis.total_count or 0 }}</div>
+    <div class="kpi__label">{{ _("Transactions enregistrées") }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__num">{{ kpis.signed_count or 0 }}</div>
+    <div class="kpi__label">{{ _("Actes authentiques") }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__num">{{ kpis.compromise_count or 0 }}</div>
+    <div class="kpi__label">{{ _("Sous compromis") }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__num">
+      {% if kpis.avg_basket %}{{ "{:,.0f}".format(kpis.avg_basket).replace(',', ' ') }} €{% else %}—{% endif %}
+    </div>
+    <div class="kpi__label">{{ _("Panier moyen signé") }}</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi__num">
+      {% if kpis.avg_cycle_days %}{{ kpis.avg_cycle_days }} {{ _("j") }}{% else %}—{% endif %}
+    </div>
+    <div class="kpi__label">{{ _("Durée moyenne du cycle") }}</div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="cities-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">01 — {{ _("Géographie") }}</span>
+      <h2 id="cities-title">{{ _("Prix moyen au m² par ville.") }}</h2>
+    </div>
+  </div>
+  <div class="bars">
+    {% set max_price = (dashboard.top_cities | map(attribute='avg_price_sqm') | max) or 1 %}
+    {% for c in dashboard.top_cities %}
+      <div class="bar">
+        <span class="bar__label">{{ c.city }} <small class="muted">({{ c.nb }})</small></span>
+        <div class="bar__track" aria-hidden="true">
+          <div class="bar__fill" style="width: {{ (c.avg_price_sqm / max_price * 100) | round(1) }}%"></div>
+        </div>
+        <span class="bar__value">{{ "{:,.0f}".format(c.avg_price_sqm).replace(',', ' ') }} €/m²</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section" aria-labelledby="zones-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">02 — {{ _("Score d'opportunité") }}</span>
+      <h2 id="zones-title">{{ _("Meilleures zones où investir.") }}</h2>
+    </div>
+  </div>
+  <p class="muted" style="margin-bottom: var(--s-5); max-width: 70ch;">
+    {{ _("Score combinant la demande (vues) et le coût au m². Plus le score est élevé, plus la zone est attractive à prix maîtrisé.") }}
+  </p>
+  <div class="table-wrap">
+    <table class="data">
+      <caption class="visually-hidden">{{ _("Top zones où investir") }}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{{ _("Ville") }}</th>
+          <th scope="col">{{ _("Biens") }}</th>
+          <th scope="col">{{ _("Prix moyen") }}</th>
+          <th scope="col">{{ _("Prix/m²") }}</th>
+          <th scope="col">{{ _("Score") }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for z in dashboard.best_zones %}
+          <tr>
+            <td>{{ z.city }}</td>
+            <td>{{ z.count }}</td>
+            <td>{{ "{:,.0f}".format(z.avg_price).replace(',', ' ') }} €</td>
+            <td>{{ "{:,.0f}".format(z.avg_price_sqm).replace(',', ' ') }} €</td>
+            <td><strong style="font-family: var(--font-display); font-size: 1.1rem;">{{ z.opportunity_score }}</strong></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="types-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">03 — {{ _("Typologie") }}</span>
+      <h2 id="types-title">{{ _("Prix moyen par type de bien.") }}</h2>
+    </div>
+  </div>
+  <div class="cards">
+    {% for row in dashboard.trend_per_type %}
+      <article class="surface stack">
+        <span class="eyebrow">
+          {%- if row.type == 'apartment' -%}{{ _("Appartement") }}
+          {%- elif row.type == 'house' -%}{{ _("Maison") }}
+          {%- elif row.type == 'land' -%}{{ _("Terrain") }}
+          {%- elif row.type == 'commercial' -%}{{ _("Local commercial") }}
+          {%- elif row.type == 'office' -%}{{ _("Bureaux") }}
+          {%- else -%}{{ row.type }}{%- endif -%}
+        </span>
+        <p style="font-family: var(--font-display); font-size: 2rem; font-weight: 400; margin: 0;">
+          {{ "{:,.0f}".format(row.avg_price).replace(',', ' ') }} €
+        </p>
+        <p class="muted" style="margin: 0;">
+          {{ ngettext('%(num)d bien', '%(num)d biens', row.count) }} ·
+          {{ "{:,.0f}".format(row.avg_price_sqm).replace(',', ' ') }} €/m² ·
+          {{ row.avg_surface }} m² {{ _("en moyenne") }}
+        </p>
+      </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section" aria-labelledby="features-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">04 — {{ _("Équipements") }}</span>
+      <h2 id="features-title">{{ _("Équipements les plus présents.") }}</h2>
+    </div>
+  </div>
+  <div class="kpis">
+    {% for feature, pct in dashboard.popular_features.items() %}
+      <div class="kpi">
+        <div class="kpi__num">{{ pct }}<small style="font-size: .55em;">%</small></div>
+        <div class="kpi__label">
+          {%- if feature == 'has_parking' -%}{{ _("Parking") }}
+          {%- elif feature == 'has_garden' -%}{{ _("Jardin") }}
+          {%- elif feature == 'has_balcony' -%}{{ _("Balcon") }}
+          {%- else -%}{{ feature }}{%- endif -%}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section" aria-labelledby="dist-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">05 — {{ _("Distribution") }}</span>
+      <h2 id="dist-title">{{ _("Distribution des prix.") }}</h2>
+    </div>
+  </div>
+  <div class="bars">
+    {% set max_count = (dashboard.price_distribution | map(attribute='count') | max) or 1 %}
+    {% for bin in dashboard.price_distribution %}
+      <div class="bar">
+        <span class="bar__label">
+          {{ "{:,.0f}".format(bin.min).replace(',', ' ') }} —
+          {{ "{:,.0f}".format(bin.max).replace(',', ' ') }} €
+        </span>
+        <div class="bar__track" aria-hidden="true">
+          <div class="bar__fill" style="width: {{ (bin.count / max_count * 100) | round(1) }}%"></div>
+        </div>
+        <span class="bar__value">{{ bin.count }}</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% from "_macros.html" import property_card, render_field, pagination %}
+
+{% block title %}{{ _("Recherche de biens — Ymmo") }}{% endblock %}
+
+{% block content %}
+<header class="stack" style="margin-bottom: var(--s-5);">
+  <span class="eyebrow">{{ _("Catalogue") }}</span>
+  <h1>{{ _("Trouver un bien") }}</h1>
+  <p class="lead">
+    {{ ngettext('%(num)d bien correspond à votre recherche.',
+                '%(num)d biens correspondent à votre recherche.', total) }}
+  </p>
+</header>
+
+<div class="listing">
+  {# ---------- Rail des filtres (sticky en desktop) ---------- #}
+  <aside class="filters" aria-labelledby="filters-title">
+    <h2 id="filters-title">{{ _("Critères") }}</h2>
+    <form method="get" action="{{ url_for('public.list_properties') }}" class="form">
+      <div class="field">{{ render_field(form.keyword, placeholder=_('Mots-clés')) }}</div>
+      <div class="field">{{ render_field(form.city, placeholder=_('Ville')) }}</div>
+      <div class="field">{{ render_field(form.property_type) }}</div>
+
+      <div class="field row-pair">
+        {{ render_field(form.min_price, placeholder='min €') }}
+        {{ render_field(form.max_price, placeholder='max €') }}
+      </div>
+      <div class="field row-pair">
+        {{ render_field(form.min_surface, placeholder='m²') }}
+        {{ render_field(form.min_rooms, placeholder=_('pièces')) }}
+      </div>
+
+      <fieldset>
+        <legend class="visually-hidden">{{ _("Équipements") }}</legend>
+        <div class="checkbox-row">{{ form.has_parking() }} {{ form.has_parking.label }}</div>
+        <div class="checkbox-row" style="margin-top: var(--s-2);">{{ form.has_garden() }} {{ form.has_garden.label }}</div>
+      </fieldset>
+
+      <div class="row" style="margin-top: var(--s-4);">
+        <button type="submit" class="btn btn--primary btn--block">{{ _("Rechercher") }}</button>
+      </div>
+      <p class="center" style="margin-top: var(--s-3);">
+        <a href="{{ url_for('public.list_properties') }}" class="muted" style="font-size: .85rem;">
+          {{ _("Réinitialiser les filtres") }}
+        </a>
+      </p>
+    </form>
+  </aside>
+
+  {# ---------- Résultats ---------- #}
+  <section aria-labelledby="results-title">
+    <header class="results-bar">
+      <span id="results-title" class="results-bar__count">
+        {{ "{:,d}".format(total).replace(',', ' ') }}
+        <small class="muted" style="font-family: var(--font-mono); font-size: .8rem; letter-spacing: .1em;">
+          {{ _("résultats") }}
+        </small>
+      </span>
+      <form method="get" action="{{ url_for('public.list_properties') }}" class="results-bar__sort">
+        {# on conserve les filtres actuels en hidden pour qu'un changement
+           de tri ne réinitialise pas la recherche #}
+        {% for k, v in request.args.items() %}
+          {% if k != 'sort' and k != 'page' %}
+            <input type="hidden" name="{{ k }}" value="{{ v }}">
+          {% endif %}
+        {% endfor %}
+        <label for="sort">{{ _("Trier") }} :</label>
+        <select id="sort" name="sort" data-auto-submit>
+          <option value="recent"      {% if sort == 'recent' %}selected{% endif %}>{{ _("Plus récents") }}</option>
+          <option value="price_asc"   {% if sort == 'price_asc' %}selected{% endif %}>{{ _("Prix croissant") }}</option>
+          <option value="price_desc"  {% if sort == 'price_desc' %}selected{% endif %}>{{ _("Prix décroissant") }}</option>
+          <option value="surface_desc"{% if sort == 'surface_desc' %}selected{% endif %}>{{ _("Plus grande surface") }}</option>
+          <option value="popular"     {% if sort == 'popular' %}selected{% endif %}>{{ _("Plus consultés") }}</option>
+        </select>
+      </form>
+    </header>
+
+    {% if items %}
+      <div class="cards">
+        {% for prop in items %}{{ property_card(prop) }}{% endfor %}
+      </div>
+      {{ pagination(page, pages, 'public.list_properties', request.args.to_dict(flat=True)) }}
+    {% else %}
+      <div class="empty-state">
+        <h3>{{ _("Aucun résultat.") }}</h3>
+        <p>{{ _("Essayez d'élargir vos critères ou de retirer un filtre.") }}</p>
+        <p style="margin-top: var(--s-4);">
+          <a href="{{ url_for('public.list_properties') }}" class="btn btn--ghost btn--small">
+            {{ _("Voir tous les biens") }}
+          </a>
+        </p>
+      </div>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

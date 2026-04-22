@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Administration — Ymmo") }}{% endblock %}
+
+{% block content %}
+<header class="stack" style="margin-bottom: var(--s-6);">
+  <span class="eyebrow">{{ _("Administration") }}</span>
+  <h1>{{ _("Console d'administration.") }}</h1>
+</header>
+
+{% set kpis = dashboard.kpis %}
+<section class="kpis">
+  <div class="kpi"><div class="kpi__num">{{ users | length }}</div><div class="kpi__label">{{ _("Utilisateurs") }}</div></div>
+  <div class="kpi"><div class="kpi__num">{{ agencies | length }}</div><div class="kpi__label">{{ _("Agences") }}</div></div>
+  <div class="kpi"><div class="kpi__num">{{ kpis.total_count or 0 }}</div><div class="kpi__label">{{ _("Transactions") }}</div></div>
+  <div class="kpi"><div class="kpi__num">{{ kpis.signed_count or 0 }}</div><div class="kpi__label">{{ _("Signées") }}</div></div>
+</section>
+
+<section class="section" aria-labelledby="users-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">01 — {{ _("Comptes") }}</span>
+      <h2 id="users-title">{{ _("Utilisateurs.") }}</h2>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>{{ _("Nom") }}</th><th>{{ _("Email") }}</th><th>{{ _("Rôle") }}</th><th>{{ _("Agence") }}</th><th>{{ _("Statut") }}</th><th>{{ _("Actions") }}</th></tr></thead>
+      <tbody>
+        {% for u in users %}
+          <tr>
+            <td>{{ u.full_name }}</td>
+            <td>{{ u.email }}</td>
+            <td>
+              <form method="post" action="{{ url_for('admin.change_role', user_id=u.id) }}" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <select name="role" data-auto-submit aria-label="{{ _('Rôle de %(name)s', name=u.full_name) }}">
+                  <option value="client" {% if u.role.value == 'client' %}selected{% endif %}>{{ _("Client") }}</option>
+                  <option value="agent" {% if u.role.value == 'agent' %}selected{% endif %}>{{ _("Agent immobilier") }}</option>
+                  <option value="admin" {% if u.role.value == 'admin' %}selected{% endif %}>{{ _("Administrateur") }}</option>
+                </select>
+              </form>
+            </td>
+            <td>
+              {% if u.role.value == 'agent' %}
+                <form method="post" action="{{ url_for('admin.assign_agency', user_id=u.id) }}" style="display: inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <select name="agency_id" data-auto-submit aria-label="{{ _('Agence de %(name)s', name=u.full_name) }}">
+                    <option value="">—</option>
+                    {% for a in agencies %}
+                      <option value="{{ a.id }}" {% if u.agency_id == a.id %}selected{% endif %}>{{ a.name }}</option>
+                    {% endfor %}
+                  </select>
+                </form>
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              {% if u.is_active_user %}
+                <span class="tag tag--success">{{ _("Actif") }}</span>
+              {% else %}
+                <span class="tag tag--danger">{{ _("Désactivé") }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <form method="post" action="{{ url_for('admin.toggle_user', user_id=u.id) }}" style="display: inline;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn--small btn--quiet">
+                  {{ _("Désactiver") if u.is_active_user else _("Réactiver") }}
+                </button>
+              </form>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="new-agent-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">02 — {{ _("Nouveaux comptes") }}</span>
+      <h2 id="new-agent-title">{{ _("Créer un agent.") }}</h2>
+    </div>
+  </div>
+  <form method="post" action="{{ url_for('admin.create_agent') }}" class="surface form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-grid">
+      <div class="form-row"><label>{{ _("Prénom") }}<input name="first_name" required></label></div>
+      <div class="form-row"><label>{{ _("Nom") }}<input name="last_name" required></label></div>
+      <div class="form-row"><label>{{ _("Email") }}<input name="email" type="email" required></label></div>
+      <div class="form-row"><label>{{ _("Téléphone") }}<input name="phone"></label></div>
+      <div class="form-row"><label>{{ _("Mot de passe") }}<input name="password" type="password" required minlength="8"></label></div>
+      <div class="form-row">
+        <label>{{ _("Agence") }}
+          <select name="agency_id" required>
+            {% for a in agencies %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}
+          </select>
+        </label>
+      </div>
+    </div>
+    <button class="btn btn--primary" type="submit">{{ _("Créer l'agent") }}</button>
+  </form>
+</section>
+
+<section class="section" aria-labelledby="market-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">03 — {{ _("Marché") }}</span>
+      <h2 id="market-title">{{ _("Aperçu marché.") }}</h2>
+    </div>
+    <a href="{{ url_for('public.market') }}" class="btn btn--ghost btn--small">
+      {{ _("Tableau de bord complet") }} <span class="arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+  <div class="bars">
+    {% set max_price = (dashboard.top_cities | map(attribute='avg_price_sqm') | max) or 1 %}
+    {% for c in dashboard.top_cities %}
+      <div class="bar">
+        <span class="bar__label">{{ c.city }}</span>
+        <div class="bar__track" aria-hidden="true">
+          <div class="bar__fill" style="width: {{ (c.avg_price_sqm / max_price * 100) | round(1) }}%"></div>
+        </div>
+        <span class="bar__value">{{ "{:,.0f}".format(c.avg_price_sqm).replace(',', ' ') }} €/m²</span>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

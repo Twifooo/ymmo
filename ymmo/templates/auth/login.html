@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "_macros.html" import render_field %}
+{% block title %}{{ _("Connexion — Ymmo") }}{% endblock %}
+
+{% block content %}
+<div class="auth">
+  <div class="auth__visual">
+    <div>
+      <span class="eyebrow" style="color: var(--brick);">Ymmo · 2026</span>
+      <h2>{{ _("Bon retour parmi nous.") }}</h2>
+      <p>{{ _("Retrouvez vos favoris, vos demandes de visite et le suivi de vos transactions.") }}</p>
+    </div>
+    <p style="font-family: var(--font-display); font-size: 1.15rem; line-height: 1.45; max-width: 32ch;
+              border-left: 2px solid var(--brick); padding-left: var(--s-4); position: relative;">
+      «&nbsp;{{ _("On a trouvé notre maison en moins de trois semaines, conseillers vraiment à l'écoute.") }}&nbsp;»
+      <br><small style="color: color-mix(in oklab, var(--paper) 60%, transparent); font-family: var(--font-mono); font-size: .7rem; letter-spacing: .12em;">
+        — {{ _("Camille D., cliente Aix-en-Provence") }}
+      </small>
+    </p>
+  </div>
+
+  <div class="auth__form">
+    <span class="eyebrow">{{ _("Espace personnel") }}</span>
+    <h1 style="margin-block: var(--s-3);">{{ _("Connexion") }}</h1>
+    <form method="post" class="form" novalidate>
+      {{ form.csrf_token }}
+      {{ render_field(form.email, autocomplete='email') }}
+      {{ render_field(form.password, autocomplete='current-password') }}
+      <div class="checkbox-row">{{ form.remember() }} {{ form.remember.label }}</div>
+      <button class="btn btn--primary btn--block" type="submit">{{ _("Se connecter") }}</button>
+    </form>
+    <p class="muted" style="text-align: center; margin-top: var(--s-5);">
+      {{ _("Pas encore de compte ?") }}
+      <a href="{{ url_for('auth.register') }}">{{ _("Inscrivez-vous") }}</a>.
+    </p>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% from "_macros.html" import property_card %}
+
+{% block title %}{{ _("Ymmo — acheter et vendre votre bien immobilier") }}{% endblock %}
+
+{% block content %}
+{# ------------- Hero -------------------------------------------------- #}
+<section class="hero" aria-labelledby="hero-title">
+  <div>
+    <span class="eyebrow">{{ _("Plateforme du groupe Ymmo") }}</span>
+    <h1 id="hero-title" class="hero__title">
+      {{ _("Le bien") }}<br>
+      <em>{{ _("qui vous ressemble.") }}</em>
+    </h1>
+    <p class="hero__lead">
+      {{ _("Douze agences à travers la France, des centaines de biens choisis avec soin, et un outil d'estimation propulsé par notre algorithme maison.") }}
+    </p>
+    <div class="hero__actions">
+      <a class="btn btn--primary" href="{{ url_for('public.list_properties') }}">
+        {{ _("Voir les biens") }} <span class="arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="btn btn--ghost" href="{{ url_for('public.estimate') }}">{{ _("Estimer un bien") }}</a>
+    </div>
+
+    <form class="quick-search" method="get" action="{{ url_for('public.list_properties') }}"
+          aria-label="{{ _('Recherche rapide') }}">
+      <input type="search" name="keyword" placeholder="{{ _('Rechercher : maison Aix, T3 Lyon…') }}"
+             aria-label="{{ _('Mots-clés') }}">
+      <select name="city" aria-label="{{ _('Ville') }}">
+        <option value="">{{ _("Toutes les villes") }}</option>
+        {% for c in nav_cities or [] %}
+          <option value="{{ c }}">{{ c }}</option>
+        {% endfor %}
+      </select>
+      <select name="property_type" aria-label="{{ _('Type de bien') }}">
+        <option value="">{{ _("Tous types") }}</option>
+        <option value="apartment">{{ _("Appartement") }}</option>
+        <option value="house">{{ _("Maison") }}</option>
+        <option value="land">{{ _("Terrain") }}</option>
+        <option value="commercial">{{ _("Local commercial") }}</option>
+        <option value="office">{{ _("Bureaux") }}</option>
+      </select>
+      <button type="submit">{{ _("Chercher") }}</button>
+    </form>
+  </div>
+
+  <aside class="hero__aside" aria-label="{{ _('Chiffres clés') }}">
+    <div class="hero__stat">
+      <span class="hero__stat-num">12<sup>+</sup></span>
+      <span class="hero__stat-label">{{ _("agences en France") }}</span>
+    </div>
+    <div class="hero__stat">
+      <span class="hero__stat-num">{{ stats.total or '—' }}</span>
+      <span class="hero__stat-label">{{ _("biens au catalogue") }}</span>
+    </div>
+    <div class="hero__stat">
+      <span class="hero__stat-num">{{ stats.cities or '—' }}</span>
+      <span class="hero__stat-label">{{ _("villes couvertes") }}</span>
+    </div>
+    <div class="hero__stat">
+      <span class="hero__stat-num">2026</span>
+      <span class="hero__stat-label">{{ _("siège · Aix-en-Provence") }}</span>
+    </div>
+  </aside>
+</section>
+
+{# ------------- Section 01 — Sélection ------------------------------- #}
+<section class="section" aria-labelledby="featured-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">01 — {{ _("Sélection") }}</span>
+      <h2 id="featured-title">{{ _("Les biens les plus consultés cette semaine.") }}</h2>
+    </div>
+    <a href="{{ url_for('public.list_properties') }}" class="btn btn--ghost btn--small">
+      {{ _("Tous les biens") }} <span class="arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+
+  {% if featured %}
+    <div class="cards">
+      {% for prop in featured %}{{ property_card(prop) }}{% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>{{ _("Catalogue en cours de mise à jour.") }}</h3>
+      <p>{{ _("Aucun bien disponible pour le moment. Revenez très vite !") }}</p>
+    </div>
+  {% endif %}
+</section>
+
+{# ------------- Section 02 — Marché ---------------------------------- #}
+<section class="section" aria-labelledby="cities-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">02 — {{ _("Marché") }}</span>
+      <h2 id="cities-title">{{ _("Tendances par ville.") }}</h2>
+    </div>
+    <a href="{{ url_for('public.market') }}" class="btn btn--ghost btn--small">
+      {{ _("Voir le tableau de bord") }} <span class="arrow" aria-hidden="true">→</span>
+    </a>
+  </div>
+
+  {% if cities %}
+    <div class="bars" role="list">
+      {% set max_price = (cities | map(attribute='avg_price_sqm') | max) or 1 %}
+      {% for city in cities %}
+        <div class="bar" role="listitem">
+          <span class="bar__label">{{ city.city }}</span>
+          <div class="bar__track" aria-hidden="true">
+            <div class="bar__fill" style="width: {{ (city.avg_price_sqm / max_price * 100) | round(1) }}%"></div>
+          </div>
+          <span class="bar__value">{{ "{:,.0f}".format(city.avg_price_sqm).replace(',', ' ') }} €/m²</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Pas encore de données de marché à afficher.") }}</p>
+  {% endif %}
+</section>
+
+{# ------------- Section 03 — Pourquoi Ymmo --------------------------- #}
+<section class="section" aria-labelledby="why-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">03 — {{ _("Méthode") }}</span>
+      <h2 id="why-title">{{ _("Une approche différente de l'immobilier.") }}</h2>
+    </div>
+  </div>
+
+  <div class="cards">
+    <article class="surface stack">
+      <span class="eyebrow">A.</span>
+      <h3>{{ _("Conseillers de proximité") }}</h3>
+      <p class="muted">
+        {{ _("Chaque agence est gérée comme une boutique : on connaît le quartier, on connaît les gens.") }}
+      </p>
+    </article>
+    <article class="surface stack">
+      <span class="eyebrow">B.</span>
+      <h3>{{ _("Estimation transparente") }}</h3>
+      <p class="muted">
+        {{ _("Notre estimateur explique ce qu'il fait : un modèle entraîné sur notre portefeuille, avec un score de confiance.") }}
+      </p>
+    </article>
+    <article class="surface stack">
+      <span class="eyebrow">C.</span>
+      <h3>{{ _("Données ouvertes") }}</h3>
+      <p class="muted">
+        {{ _("Le tableau de bord du marché est public. Pas de boîte noire : vous voyez ce qu'on voit.") }}
+      </p>
+    </article>
+  </div>
+</section>
+{% endblock %}

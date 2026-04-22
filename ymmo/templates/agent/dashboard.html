@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Espace agent — Ymmo") }}{% endblock %}
+
+{% block content %}
+<header class="row between" style="margin-bottom: var(--s-7); align-items: end; flex-wrap: wrap; gap: var(--s-4);">
+  <div>
+    <span class="eyebrow">{{ _("Espace agent") }}</span>
+    <h1 style="margin: var(--s-2) 0 0;">{{ _("Bienvenue, %(name)s.", name=current_user.first_name) }}</h1>
+    {% if current_user.agency %}
+      <p class="muted" style="margin: var(--s-2) 0 0;">{{ current_user.agency.name }} · {{ current_user.agency.city }}</p>
+    {% endif %}
+  </div>
+  <a class="btn btn--primary" href="{{ url_for('agent.create_property') }}">
+    + {{ _("Ajouter un bien") }}
+  </a>
+</header>
+
+{% set kpis = dashboard.kpis %}
+<section class="kpis" aria-label="{{ _('Indicateurs') }}">
+  <div class="kpi"><div class="kpi__num">{{ properties | length }}</div><div class="kpi__label">{{ _("Mes biens") }}</div></div>
+  <div class="kpi"><div class="kpi__num">{{ visits | selectattr('status.value', 'equalto', 'pending') | list | length }}</div><div class="kpi__label">{{ _("Visites en attente") }}</div></div>
+  <div class="kpi"><div class="kpi__num">{{ kpis.signed_count or 0 }}</div><div class="kpi__label">{{ _("Ventes signées (réseau)") }}</div></div>
+  <div class="kpi">
+    <div class="kpi__num">{% if kpis.avg_basket %}{{ "{:,.0f}".format(kpis.avg_basket).replace(',', ' ') }} €{% else %}—{% endif %}</div>
+    <div class="kpi__label">{{ _("Panier moyen réseau") }}</div>
+  </div>
+</section>
+
+<section class="section" aria-labelledby="my-props-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">01 — {{ _("Portefeuille") }}</span>
+      <h2 id="my-props-title">{{ _("Mes biens.") }}</h2>
+    </div>
+  </div>
+  {% if properties %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr><th>{{ _("Titre") }}</th><th>{{ _("Type") }}</th><th>{{ _("Statut") }}</th><th>{{ _("Prix") }}</th><th>{{ _("Vues") }}</th><th>{{ _("Actions") }}</th></tr>
+        </thead>
+        <tbody>
+          {% for p in properties %}
+            <tr>
+              <td>
+                <a href="{{ url_for('public.property_detail', property_id=p.id) }}">{{ p.title }}</a><br>
+                <small class="muted">{{ p.city }}</small>
+              </td>
+              <td>{{ p.type.label }}</td>
+              <td><span class="tag">{{ p.status.label }}</span></td>
+              <td>{{ "{:,.0f}".format(p.price).replace(',', ' ') }} €</td>
+              <td>{{ p.views_count }}</td>
+              <td>
+                <a class="btn btn--small btn--quiet" href="{{ url_for('agent.edit_property', property_id=p.id) }}">{{ _("Éditer") }}</a>
+                <form method="post" action="{{ url_for('agent.delete_property', property_id=p.id) }}" style="display: inline;">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn--small btn--danger"
+                          data-confirm="{{ _('Supprimer définitivement ce bien ?') }}">
+                    {{ _("Supprimer") }}
+                  </button>
+                </form>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>{{ _("Aucun bien dans votre portefeuille pour le moment.") }}</h3>
+      <p>{{ _("Ajoutez votre premier bien pour le rendre visible au catalogue.") }}</p>
+    </div>
+  {% endif %}
+</section>
+
+<section class="section" aria-labelledby="visits-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">02 — {{ _("Demandes") }}</span>
+      <h2 id="visits-title">{{ _("Demandes de visite.") }}</h2>
+    </div>
+  </div>
+  {% if visits %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>{{ _("Bien") }}</th><th>{{ _("Client") }}</th><th>{{ _("Date souhaitée") }}</th><th>{{ _("Message") }}</th><th>{{ _("Statut") }}</th><th>{{ _("Actions") }}</th></tr></thead>
+        <tbody>
+          {% for v in visits %}
+            <tr>
+              <td><a href="{{ url_for('public.property_detail', property_id=v.property_id) }}">{{ v.property.title }}</a></td>
+              <td>{{ v.client.full_name }}<br><small class="muted">{{ v.client.email }}</small></td>
+              <td>{{ v.preferred_date.strftime('%d/%m/%Y %H:%M') if v.preferred_date else '—' }}</td>
+              <td>{{ v.message | truncate(80) }}</td>
+              <td><span class="tag">{{ v.status.label }}</span></td>
+              <td>
+                {% for action, label in [('confirmer', _('Confirmer')), ('terminer', _('Terminée')), ('annuler', _('Annuler'))] %}
+                  <form method="post" action="{{ url_for('agent.update_visit', visit_id=v.id, action=action) }}" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn--small btn--quiet">{{ label }}</button>
+                  </form>
+                {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Aucune demande pour l'instant.") }}</p>
+  {% endif %}
+</section>
+
+<section class="section" aria-labelledby="trans-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">03 — {{ _("Transactions") }}</span>
+      <h2 id="trans-title">{{ _("Mes transactions.") }}</h2>
+    </div>
+  </div>
+  {% if transactions %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>{{ _("Bien") }}</th><th>{{ _("Acheteur") }}</th><th>{{ _("Offre") }}</th><th>{{ _("Statut") }}</th><th>{{ _("Faire évoluer") }}</th></tr></thead>
+        <tbody>
+          {% for t in transactions %}
+            <tr>
+              <td>{{ t.property.title }}</td>
+              <td>{{ t.buyer.full_name }}</td>
+              <td>{{ "{:,.0f}".format(t.offer_amount).replace(',', ' ') }} €</td>
+              <td><span class="tag">{{ t.status.label }}</span></td>
+              <td>
+                {% for status, label in [('compromise', _('Passer en compromis')), ('signed', _('Signer')), ('cancelled', _('Annuler'))] %}
+                  {% if t.status.value != status %}
+                    <form method="post" action="{{ url_for('agent.progress_transaction', transaction_id=t.id, status=status) }}" style="display: inline;">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button class="btn btn--small btn--quiet">{{ label }}</button>
+                    </form>
+                  {% endif %}
+                {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Aucune transaction.") }}</p>
+  {% endif %}
+</section>
+{% endblock %}

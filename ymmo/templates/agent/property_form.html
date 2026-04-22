@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "_macros.html" import render_field %}
+{% block title %}{{ (_("Modifier") if prop else _("Ajouter")) }} {{ _("un bien") }} — Ymmo{% endblock %}
+
+{% block content %}
+<header class="stack" style="margin-bottom: var(--s-6);">
+  <span class="eyebrow">{{ _("Espace agent") }}</span>
+  <h1>{{ (_("Modifier") if prop else _("Ajouter")) }} {{ _("un bien") }}</h1>
+</header>
+
+<form method="post" enctype="multipart/form-data" class="surface form" novalidate>
+  {{ form.csrf_token }}
+
+  {{ render_field(form.title) }}
+  {{ render_field(form.description) }}
+
+  <fieldset>
+    <legend>{{ _("Caractéristiques") }}</legend>
+    <div class="form-grid">
+      {{ render_field(form.type) }}
+      {{ render_field(form.status) }}
+      {{ render_field(form.energy_class) }}
+      {{ render_field(form.year_built) }}
+    </div>
+    <div class="form-grid">
+      {{ render_field(form.price) }}
+      {{ render_field(form.surface) }}
+      {{ render_field(form.rooms) }}
+      {{ render_field(form.bedrooms) }}
+      {{ render_field(form.bathrooms) }}
+      {{ render_field(form.floor) }}
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>{{ _("Équipements") }}</legend>
+    <div class="row">
+      <div class="checkbox-row">{{ form.has_parking() }} {{ form.has_parking.label }}</div>
+      <div class="checkbox-row">{{ form.has_garden() }} {{ form.has_garden.label }}</div>
+      <div class="checkbox-row">{{ form.has_balcony() }} {{ form.has_balcony.label }}</div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>{{ _("Adresse") }}</legend>
+    {{ render_field(form.address) }}
+    <div class="form-grid">
+      {{ render_field(form.postal_code) }}
+      {{ render_field(form.city) }}
+    </div>
+  </fieldset>
+
+  {{ render_field(form.images) }}
+
+  {% if prop and prop.images %}
+    <p class="muted">{{ _("Photos déjà associées :") }}</p>
+    <div class="cards">
+      {% for img in prop.images %}
+        <img src="{{ img.url }}" alt="{{ img.alt_text }}"
+             style="border-radius: var(--r-2); aspect-ratio: 4/3; object-fit: cover;">
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="row">
+    <button type="submit" class="btn btn--primary">{{ form.submit.label.text }}</button>
+    <a href="{{ url_for('agent.dashboard') }}" class="btn btn--quiet">{{ _("Annuler") }}</a>
+  </div>
+</form>
+{% endblock %}

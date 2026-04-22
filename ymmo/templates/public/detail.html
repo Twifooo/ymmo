@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}{{ prop.title }} — Ymmo{% endblock %}
+{% block meta_description %}{{ prop.title }} — {{ prop.surface }} m², {{ prop.city }}, {{ "{:,.0f}".format(prop.price).replace(',', ' ') }} €.{% endblock %}
+
+{% block content %}
+<nav class="crumbs" aria-label="{{ _('Fil d''ariane') }}">
+  <a href="{{ url_for('public.home') }}">{{ _("Accueil") }}</a>
+  <span aria-hidden="true">/</span>
+  <a href="{{ url_for('public.list_properties') }}">{{ _("Biens") }}</a>
+  <span aria-hidden="true">/</span>
+  <span>{{ prop.city }}</span>
+</nav>
+
+{# ---------- En-tête éditorial ---------- #}
+<header class="detail__head">
+  <div>
+    <span class="eyebrow">{{ prop.type.label }} · {{ prop.city }}</span>
+    <h1>{{ prop.title }}</h1>
+    <p class="muted">
+      {{ prop.surface }} m² ·
+      {{ ngettext('%(num)d pièce', '%(num)d pièces', prop.rooms) }}
+      {% if prop.bedrooms %} · {{ prop.bedrooms }} {{ _("ch.") }}{% endif %}
+      · {{ prop.address }}
+    </p>
+    {% if prop.status.value != 'available' %}
+      <p style="margin-top: var(--s-3);">
+        <span class="tag tag--warn">{{ prop.status.label }}</span>
+      </p>
+    {% endif %}
+  </div>
+  <div class="price-block">
+    <div class="detail__price">{{ "{:,.0f}".format(prop.price).replace(',', ' ') }} €</div>
+    <div class="detail__price-sub">{{ "{:,.0f}".format(prop.price_per_sqm).replace(',', ' ') }} €/m²</div>
+  </div>
+</header>
+
+{# ---------- Galerie type Airbnb (1 grande + 4 petites) ---------- #}
+{% if prop.images %}
+  <div class="gallery">
+    <a href="{{ prop.images[0].url }}" target="_blank" rel="noopener">
+      <img src="{{ prop.images[0].url }}"
+           alt="{{ prop.images[0].alt_text or _('Photo principale du bien ') + prop.title }}"
+           loading="eager">
+    </a>
+    {% for img in prop.images[1:5] %}
+      <a href="{{ img.url }}" target="_blank" rel="noopener">
+        <img src="{{ img.url }}" alt="{{ img.alt_text }}" loading="lazy">
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <img src="{{ url_for('static', filename='images/placeholder.svg') }}"
+       alt="{{ _('Photo à venir') }}"
+       style="aspect-ratio: 16/9; object-fit: cover; border-radius: var(--r-3); margin-bottom: var(--s-7);">
+{% endif %}
+
+<article class="detail__layout" aria-labelledby="prop-title">
+  <section class="stack-lg">
+    <div class="stack">
+      <span class="eyebrow">{{ _("Le bien") }}</span>
+      <h2>{{ _("Description") }}</h2>
+      <p style="max-width: 65ch; font-size: 1.05rem;">
+        {{ prop.description or _("Description non renseignée.") }}
+      </p>
+    </div>
+
+    <div class="stack">
+      <span class="eyebrow">{{ _("Caractéristiques") }}</span>
+      <h2>{{ _("À l'intérieur") }}</h2>
+      <ul class="specs">
+        <li><span class="k">{{ _("Surface") }}</span><span class="v">{{ prop.surface }} m²</span></li>
+        <li><span class="k">{{ _("Pièces") }}</span><span class="v">{{ prop.rooms }}</span></li>
+        <li><span class="k">{{ _("Chambres") }}</span><span class="v">{{ prop.bedrooms }}</span></li>
+        <li><span class="k">{{ _("Salles de bain") }}</span><span class="v">{{ prop.bathrooms }}</span></li>
+        {% if prop.floor is not none %}<li><span class="k">{{ _("Étage") }}</span><span class="v">{{ prop.floor }}</span></li>{% endif %}
+        {% if prop.year_built %}<li><span class="k">{{ _("Année") }}</span><span class="v">{{ prop.year_built }}</span></li>{% endif %}
+        {% if prop.energy_class %}<li><span class="k">{{ _("Classe énergie") }}</span><span class="v">{{ prop.energy_class }}</span></li>{% endif %}
+        <li><span class="k">{{ _("Parking") }}</span><span class="v">{{ _("Oui") if prop.has_parking else _("Non") }}</span></li>
+        <li><span class="k">{{ _("Jardin") }}</span><span class="v">{{ _("Oui") if prop.has_garden else _("Non") }}</span></li>
+        <li><span class="k">{{ _("Balcon") }}</span><span class="v">{{ _("Oui") if prop.has_balcony else _("Non") }}</span></li>
+      </ul>
+    </div>
+
+    <div class="stack">
+      <span class="eyebrow">{{ _("Adresse") }}</span>
+      <h2>{{ _("Localisation") }}</h2>
+      <address style="font-style: normal; font-family: var(--font-display); font-size: 1.2rem; line-height: 1.3;">
+        {{ prop.address }}<br>
+        {{ prop.postal_code }} {{ prop.city }}
+      </address>
+      <p class="muted" style="font-size: .92rem;">
+        {{ _("L'adresse complète est partagée après contact, en accord avec le vendeur.") }}
+      </p>
+    </div>
+  </section>
+
+  <aside class="contact-card" aria-labelledby="aside-title">
+    <span class="eyebrow" style="color: var(--brick);">{{ _("Contact") }}</span>
+    <h2 id="aside-title" style="margin-top: var(--s-2);">{{ _("Visitez ce bien") }}</h2>
+    <p>{{ _("Réponse sous 24h ouvrées par votre conseiller dédié.") }}</p>
+
+    <div class="agent">
+      <span class="agent__avatar" aria-hidden="true">
+        {{ prop.agent.first_name[:1] }}{{ prop.agent.last_name[:1] }}
+      </span>
+      <div>
+        <p class="agent__name">{{ prop.agent.full_name }}</p>
+        <p class="agent__role">{{ prop.agency.name }} · {{ prop.agency.city }}</p>
+      </div>
+    </div>
+
+    {% if current_user.is_authenticated and current_user.is_client %}
+      <div class="stack" style="--s-4: .55rem;">
+        <a class="btn btn--primary btn--block"
+           href="{{ url_for('client.request_visit', property_id=prop.id) }}">
+          {{ _("Demander une visite") }}
+        </a>
+        <a class="btn btn--ghost btn--block"
+           href="{{ url_for('client.contact_agency', property_id=prop.id) }}">
+          {{ _("Envoyer un message") }}
+        </a>
+        <form method="post" action="{{ url_for('client.toggle_favorite', property_id=prop.id) }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="btn btn--ghost btn--block" type="submit">
+            ♥ {{ _("Ajouter aux favoris") }}
+          </button>
+        </form>
+      </div>
+    {% else %}
+      <p style="font-size: .92rem;">{{ _("Pour demander une visite ou contacter l'agence :") }}</p>
+      <div class="stack" style="--s-4: .55rem;">
+        <a class="btn btn--primary btn--block" href="{{ url_for('auth.login') }}">{{ _("Se connecter") }}</a>
+        <a class="btn btn--ghost btn--block" href="{{ url_for('auth.register') }}">{{ _("Créer un compte") }}</a>
+      </div>
+    {% endif %}
+
+    <p style="margin-top: var(--s-5); font-size: .82rem; color: color-mix(in oklab, var(--paper) 65%, transparent);">
+      {{ ngettext('%(num)d consultation', '%(num)d consultations', prop.views_count) }}
+    </p>
+  </aside>
+</article>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% from "_macros.html" import property_card %}
+{% block title %}{{ _("Mon espace") }} — Ymmo{% endblock %}
+
+{% block content %}
+<header class="stack" style="margin-bottom: var(--s-7);">
+  <span class="eyebrow">{{ _("Mon espace") }}</span>
+  <h1>{{ _("Bonjour, %(name)s.", name=current_user.first_name) }}</h1>
+  <p class="lead">{{ _("Retrouvez vos favoris, vos demandes et vos transactions.") }}</p>
+</header>
+
+<section class="section" aria-labelledby="fav-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">01 — {{ _("Sélection") }}</span>
+      <h2 id="fav-title">{{ _("Mes favoris.") }}</h2>
+    </div>
+  </div>
+  {% if favorites %}
+    <div class="cards">
+      {% for fav in favorites %}{{ property_card(fav.property) }}{% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <h3>{{ _("Aucun favori pour l'instant.") }}</h3>
+      <p>{{ _("Parcourez les biens et cliquez sur ♥ pour les retrouver ici.") }}</p>
+      <p style="margin-top: var(--s-4);">
+        <a href="{{ url_for('public.list_properties') }}" class="btn btn--primary btn--small">
+          {{ _("Voir les biens") }}
+        </a>
+      </p>
+    </div>
+  {% endif %}
+</section>
+
+<section class="section" aria-labelledby="visits-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">02 — {{ _("Visites") }}</span>
+      <h2 id="visits-title">{{ _("Mes demandes de visite.") }}</h2>
+    </div>
+  </div>
+  {% if visits %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>{{ _("Bien") }}</th><th>{{ _("Date souhaitée") }}</th><th>{{ _("Statut") }}</th></tr></thead>
+        <tbody>
+          {% for v in visits %}
+            <tr>
+              <td><a href="{{ url_for('public.property_detail', property_id=v.property_id) }}">{{ v.property.title }}</a></td>
+              <td>{{ v.preferred_date.strftime('%d/%m/%Y %H:%M') if v.preferred_date else '—' }}</td>
+              <td><span class="tag">{{ v.status.label }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Aucune demande de visite enregistrée.") }}</p>
+  {% endif %}
+</section>
+
+<section class="section" aria-labelledby="trans-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">03 — {{ _("Achat") }}</span>
+      <h2 id="trans-title">{{ _("Mes transactions.") }}</h2>
+    </div>
+  </div>
+  {% if transactions %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>{{ _("Bien") }}</th><th>{{ _("Offre") }}</th><th>{{ _("Statut") }}</th><th>{{ _("Date") }}</th></tr></thead>
+        <tbody>
+          {% for t in transactions %}
+            <tr>
+              <td><a href="{{ url_for('public.property_detail', property_id=t.property_id) }}">{{ t.property.title }}</a></td>
+              <td>{{ "{:,.0f}".format(t.offer_amount).replace(',', ' ') }} €</td>
+              <td><span class="tag">{{ t.status.label }}</span></td>
+              <td>{{ t.offer_date.strftime('%d/%m/%Y') }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Vous n'avez pas encore de transaction en cours.") }}</p>
+  {% endif %}
+</section>
+{% endblock %}

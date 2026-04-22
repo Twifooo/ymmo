@@ -1,0 +1,94 @@
+{# ----------------------------------------------------------------------
+   Macros Jinja partagées : champ de formulaire, carte bien, pagination.
+   Évite la duplication entre les 6 templates publics.
+   ---------------------------------------------------------------------- #}
+
+{% macro render_field(field, autocomplete=None, type=None, placeholder=None) %}
+  <div class="form-row {% if field.errors %}form-row--error{% endif %}">
+    {{ field.label }}
+    {% set extra = {} %}
+    {% if autocomplete %}{% set _ = extra.update({'autocomplete': autocomplete}) %}{% endif %}
+    {% if type %}{% set _ = extra.update({'type': type}) %}{% endif %}
+    {% if placeholder %}{% set _ = extra.update({'placeholder': placeholder}) %}{% endif %}
+    {{ field(**extra) if extra else field() }}
+    {% if field.description %}<small class="hint">{{ field.description }}</small>{% endif %}
+    {% if field.errors %}
+      <ul class="error" role="alert">
+        {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro property_card(prop) %}
+  <article class="card" aria-labelledby="prop-{{ prop.id }}-title">
+    <a class="card__media" href="{{ url_for('public.property_detail', property_id=prop.id) }}"
+       aria-label="{{ _('Voir le bien :') }} {{ prop.title }}">
+      {% if prop.images %}
+        <img src="{{ prop.images[0].url }}" alt="{{ prop.images[0].alt_text }}" loading="lazy">
+      {% else %}
+        <img src="{{ url_for('static', filename='images/placeholder.svg') }}"
+             alt="{{ _('Photo à venir') }}" loading="lazy">
+      {% endif %}
+
+      {# pastille de statut en haut à gauche, seulement si pertinent #}
+      {% if prop.status.value == 'sold' %}
+        <span class="card__chip card__chip--sold">{{ _("Vendu") }}</span>
+      {% elif prop.status.value == 'under_offer' %}
+        <span class="card__chip card__chip--offer">{{ _("Sous compromis") }}</span>
+      {% else %}
+        <span class="card__chip">{{ prop.type.label }}</span>
+      {% endif %}
+    </a>
+
+    <div class="card__body">
+      <span class="card__city">{{ prop.city }} · {{ prop.postal_code[:2] }}</span>
+      <h3 class="card__title" id="prop-{{ prop.id }}-title">
+        <a href="{{ url_for('public.property_detail', property_id=prop.id) }}">{{ prop.title }}</a>
+      </h3>
+      <p class="card__meta">
+        <span><b>{{ prop.surface }}</b> m²</span>
+        <span><b>{{ prop.rooms }}</b> {{ _("pièces") if prop.rooms > 1 else _("pièce") }}</span>
+        {% if prop.bedrooms %}<span><b>{{ prop.bedrooms }}</b> {{ _("ch.") }}</span>{% endif %}
+        {% if prop.has_parking %}<span>· {{ _("Parking") }}</span>{% endif %}
+        {% if prop.has_garden %}<span>· {{ _("Jardin") }}</span>{% endif %}
+      </p>
+      <div class="card__price">
+        <span>{{ "{:,.0f}".format(prop.price).replace(',', ' ') }} €</span>
+        <small>{{ "{:,.0f}".format(prop.price_per_sqm).replace(',', ' ') }} €/m²</small>
+      </div>
+    </div>
+  </article>
+{% endmacro %}
+
+{% macro pagination(page, pages, endpoint, args={}) %}
+  {% if pages > 1 %}
+    {% set base = dict(args) %}
+    <nav class="pagination" aria-label="{{ _('Pagination') }}">
+      {% if page > 1 %}
+        {% set _x = base.update({'page': page - 1}) %}
+        <a href="{{ url_for(endpoint, **base) }}" rel="prev" aria-label="{{ _('Précédent') }}">‹</a>
+      {% endif %}
+
+      {# fenêtre glissante autour de la page courante : évite 30 numéros à l'écran #}
+      {% set window = 2 %}
+      {% for p in range(1, pages + 1) %}
+        {% if p == 1 or p == pages or (p >= page - window and p <= page + window) %}
+          {% set _x = base.update({'page': p}) %}
+          {% if p == page %}
+            <span class="current" aria-current="page">{{ p }}</span>
+          {% else %}
+            <a href="{{ url_for(endpoint, **base) }}">{{ p }}</a>
+          {% endif %}
+        {% elif p == page - window - 1 or p == page + window + 1 %}
+          <span aria-hidden="true">…</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if page < pages %}
+        {% set _x = base.update({'page': page + 1}) %}
+        <a href="{{ url_for(endpoint, **base) }}" rel="next" aria-label="{{ _('Suivant') }}">›</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+{% endmacro %}

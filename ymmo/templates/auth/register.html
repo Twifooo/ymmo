@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% from "_macros.html" import render_field %}
+{% block title %}{{ _("Inscription — Ymmo") }}{% endblock %}
+
+{% block content %}
+<div class="auth">
+  <div class="auth__visual">
+    <div>
+      <span class="eyebrow" style="color: var(--brick);">Ymmo · 2026</span>
+      <h2>{{ _("Rejoignez le réseau Ymmo.") }}</h2>
+      <p>{{ _("Sauvegardez vos coups de cœur, demandez des visites en deux clics, recevez nos nouveautés.") }}</p>
+    </div>
+    <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: var(--s-3); color: color-mix(in oklab, var(--paper) 85%, transparent);">
+      <li>— {{ _("Favoris synchronisés sur tous vos appareils.") }}</li>
+      <li>— {{ _("Suivi des visites et des offres en cours.") }}</li>
+      <li>— {{ _("Alerte quand un bien correspondant à vos critères entre au catalogue.") }}</li>
+    </ul>
+  </div>
+
+  <div class="auth__form">
+    <span class="eyebrow">{{ _("Inscription") }}</span>
+    <h1 style="margin-block: var(--s-3);">{{ _("Créer un compte") }}</h1>
+    <form method="post" class="form" novalidate>
+      {{ form.csrf_token }}
+      <div class="form-grid">
+        {{ render_field(form.first_name) }}
+        {{ render_field(form.last_name) }}
+      </div>
+      {{ render_field(form.email) }}
+      {{ render_field(form.phone) }}
+      <div class="form-grid">
+        {{ render_field(form.password) }}
+        {{ render_field(form.confirm) }}
+      </div>
+      <button class="btn btn--primary btn--block" type="submit">{{ _("Créer mon compte") }}</button>
+    </form>
+    <p class="muted" style="text-align: center; margin-top: var(--s-5);">
+      {{ _("Déjà inscrit ?") }} <a href="{{ url_for('auth.login') }}">{{ _("Connectez-vous") }}</a>.
+    </p>
+  </div>
+</div>
+{% endblock %}

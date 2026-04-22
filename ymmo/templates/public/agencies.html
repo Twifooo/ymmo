@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Nos agences — Ymmo") }}{% endblock %}
+
+{% block content %}
+<header class="stack" style="margin-bottom: var(--s-7);">
+  <span class="eyebrow">{{ _("Réseau") }}</span>
+  <h1>{{ _("Notre réseau d'agences.") }}</h1>
+  <p class="lead">{{ _("Le siège social Ymmo est implanté à Aix-en-Provence et notre réseau couvre l'ensemble du territoire.") }}</p>
+</header>
+
+<div class="cards">
+  {% for agency in agencies %}
+    <article class="surface stack">
+      <div class="row between">
+        <span class="eyebrow">{{ agency.city }}</span>
+        {% if agency.is_headquarters %}
+          <span class="tag tag--success">{{ _("Siège") }}</span>
+        {% endif %}
+      </div>
+      <h2 style="font-size: 1.4rem; margin: 0;">{{ agency.name }}</h2>
+      <address style="font-style: normal;" class="muted">
+        {{ agency.address }}<br>
+        {{ agency.postal_code }} {{ agency.city }}
+      </address>
+      <hr class="divider" style="margin: var(--s-2) 0;">
+      <div class="row" style="gap: var(--s-3);">
+        {% if agency.phone %}
+          <a href="tel:{{ agency.phone | replace(' ', '') }}" style="text-decoration: none;">
+            <span aria-hidden="true">☎</span> {{ agency.phone }}
+          </a>
+        {% endif %}
+        {% if agency.email %}
+          <a href="mailto:{{ agency.email }}" style="text-decoration: none;">
+            <span aria-hidden="true">✉</span> {{ _("Écrire") }}
+          </a>
+        {% endif %}
+      </div>
+    </article>
+  {% endfor %}
+</div>
+{% endblock %}
