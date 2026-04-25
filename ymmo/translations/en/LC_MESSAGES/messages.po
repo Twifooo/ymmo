@@ -1,0 +1,917 @@
+# Ymmo — English translations
+# Copyright (C) 2026 Ymmo
+msgid ""
+msgstr ""
+"Project-Id-Version: ymmo 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-05-09 00:00+0200\n"
+"PO-Revision-Date: 2026-05-09 00:00+0200\n"
+"Language-Team: en <LL@li.org>\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+
+msgid "Appartement"
+msgstr "Apartment"
+
+msgid "Maison"
+msgstr "House"
+
+msgid "Terrain"
+msgstr "Land"
+
+msgid "Local commercial"
+msgstr "Commercial space"
+
+msgid "Bureaux"
+msgstr "Offices"
+
+msgid "Brouillon"
+msgstr "Draft"
+
+msgid "Disponible"
+msgstr "Available"
+
+msgid "Sous compromis"
+msgstr "Under offer"
+
+msgid "Vendu"
+msgstr "Sold"
+
+msgid "Retiré"
+msgstr "Withdrawn"
+
+msgid "Offre déposée"
+msgstr "Offer submitted"
+
+msgid "Compromis signé"
+msgstr "Compromise signed"
+
+msgid "Acte authentique"
+msgstr "Deed signed"
+
+msgid "Annulée"
+msgstr "Cancelled"
+
+msgid "Administrateur"
+msgstr "Administrator"
+
+msgid "Agent immobilier"
+msgstr "Real estate agent"
+
+msgid "Client"
+msgstr "Customer"
+
+msgid "En attente"
+msgstr "Pending"
+
+msgid "Confirmée"
+msgstr "Confirmed"
+
+msgid "Effectuée"
+msgstr "Completed"
+
+msgid "Voir le bien :"
+msgstr "View property:"
+
+msgid "Photo à venir"
+msgstr "Photo coming soon"
+
+msgid "pièces"
+msgstr "rooms"
+
+msgid "pièce"
+msgstr "room"
+
+msgid "ch."
+msgstr "bd."
+
+msgid "Parking"
+msgstr "Parking"
+
+msgid "Jardin"
+msgstr "Garden"
+
+msgid "Pagination"
+msgstr "Pagination"
+
+msgid "Précédent"
+msgstr "Previous"
+
+msgid "Suivant"
+msgstr "Next"
+
+msgid "Ymmo, plateforme immobilière pour acheter et vendre vos biens en France."
+msgstr "Ymmo, real estate platform to buy and sell your properties in France."
+
+msgid "Ymmo — plateforme immobilière"
+msgstr "Ymmo — real estate platform"
+
+msgid "Aller au contenu principal"
+msgstr "Skip to main content"
+
+msgid "accueil"
+msgstr "home"
+
+msgid "Ouvrir le menu"
+msgstr "Open menu"
+
+msgid "Navigation principale"
+msgstr "Main navigation"
+
+msgid "Changer de thème (clair / sombre)"
+msgstr "Switch theme (light / dark)"
+
+msgid "Biens"
+msgstr "Properties"
+
+msgid "Marché"
+msgstr "Market"
+
+msgid "Estimer"
+msgstr "Estimate"
+
+msgid "Agences"
+msgstr "Agencies"
+
+msgid "Admin"
+msgstr "Admin"
+
+msgid "Espace agent"
+msgstr "Agent area"
+
+msgid "Mon espace"
+msgstr "My area"
+
+msgid "Changer de thème"
+msgstr "Switch theme"
+
+msgid "Langue"
+msgstr "Language"
+
+msgid "Se déconnecter"
+msgstr "Log out"
+
+msgid "Se connecter"
+msgstr "Log in"
+
+msgid "S'inscrire"
+msgstr "Sign up"
+
+msgid "Explorer"
+msgstr "Explore"
+
+msgid "Biens à vendre"
+msgstr "Properties for sale"
+
+msgid "Estimer un bien"
+msgstr "Estimate a property"
+
+msgid "Réseau"
+msgstr "Network"
+
+msgid "Nos agences"
+msgstr "Our agencies"
+
+msgid "Haut de page"
+msgstr "Top of page"
+
+msgid "Espace pro"
+msgstr "Pro area"
+
+msgid "Créer un compte"
+msgstr "Create an account"
+
+msgid "Tous droits réservés."
+msgstr "All rights reserved."
+
+msgid "Aix-en-Provence · 12 agences · France"
+msgstr "Aix-en-Provence · 12 agencies · France"
+
+msgid "Réseau d'agences indépendantes, basé à Aix-en-Provence depuis 2026. Achat, vente, estimation."
+msgstr "An independent network of agencies, based in Aix-en-Provence since 2026. Buy, sell, estimate."
+
+msgid "Administration — Ymmo"
+msgstr "Administration — Ymmo"
+
+msgid "Administration"
+msgstr "Administration"
+
+msgid "Console d'administration."
+msgstr "Admin console."
+
+msgid "Utilisateurs"
+msgstr "Users"
+
+msgid "Transactions"
+msgstr "Transactions"
+
+msgid "Signées"
+msgstr "Signed"
+
+msgid "Comptes"
+msgstr "Accounts"
+
+msgid "Utilisateurs."
+msgstr "Users."
+
+msgid "Nom"
+msgstr "Last name"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Rôle"
+msgstr "Role"
+
+msgid "Agence"
+msgstr "Agency"
+
+msgid "Statut"
+msgstr "Status"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid "Rôle de %(name)s"
+msgstr "Role of %(name)s"
+
+msgid "Agence de %(name)s"
+msgstr "Agency of %(name)s"
+
+msgid "Actif"
+msgstr "Active"
+
+msgid "Désactivé"
+msgstr "Disabled"
+
+msgid "Désactiver"
+msgstr "Disable"
+
+msgid "Réactiver"
+msgstr "Reactivate"
+
+msgid "Nouveaux comptes"
+msgstr "New accounts"
+
+msgid "Créer un agent."
+msgstr "Create an agent."
+
+msgid "Prénom"
+msgstr "First name"
+
+msgid "Téléphone"
+msgstr "Phone"
+
+msgid "Mot de passe"
+msgstr "Password"
+
+msgid "Créer l'agent"
+msgstr "Create the agent"
+
+msgid "Aperçu marché."
+msgstr "Market overview."
+
+msgid "Tableau de bord complet"
+msgstr "Full dashboard"
+
+msgid "Espace agent — Ymmo"
+msgstr "Agent area — Ymmo"
+
+msgid "Bienvenue, %(name)s."
+msgstr "Welcome, %(name)s."
+
+msgid "Ajouter un bien"
+msgstr "Add a property"
+
+msgid "Indicateurs"
+msgstr "Indicators"
+
+msgid "Mes biens"
+msgstr "My properties"
+
+msgid "Visites en attente"
+msgstr "Pending visits"
+
+msgid "Ventes signées (réseau)"
+msgstr "Network signed deals"
+
+msgid "Panier moyen réseau"
+msgstr "Network avg. deal"
+
+msgid "Portefeuille"
+msgstr "Portfolio"
+
+msgid "Mes biens."
+msgstr "My properties."
+
+msgid "Titre"
+msgstr "Title"
+
+msgid "Type"
+msgstr "Type"
+
+msgid "Prix"
+msgstr "Price"
+
+msgid "Vues"
+msgstr "Views"
+
+msgid "Éditer"
+msgstr "Edit"
+
+msgid "Supprimer définitivement ce bien ?"
+msgstr "Permanently delete this property?"
+
+msgid "Supprimer"
+msgstr "Delete"
+
+msgid "Aucun bien dans votre portefeuille pour le moment."
+msgstr "No property in your portfolio yet."
+
+msgid "Ajoutez votre premier bien pour le rendre visible au catalogue."
+msgstr "Add your first property to publish it to the catalogue."
+
+msgid "Demandes"
+msgstr "Requests"
+
+msgid "Demandes de visite."
+msgstr "Visit requests."
+
+msgid "Bien"
+msgstr "Property"
+
+msgid "Date souhaitée"
+msgstr "Preferred date"
+
+msgid "Message"
+msgstr "Message"
+
+msgid "Confirmer"
+msgstr "Confirm"
+
+msgid "Terminée"
+msgstr "Completed"
+
+msgid "Annuler"
+msgstr "Cancel"
+
+msgid "Aucune demande pour l'instant."
+msgstr "No request yet."
+
+msgid "Mes transactions."
+msgstr "My transactions."
+
+msgid "Acheteur"
+msgstr "Buyer"
+
+msgid "Offre"
+msgstr "Offer"
+
+msgid "Faire évoluer"
+msgstr "Move forward"
+
+msgid "Passer en compromis"
+msgstr "Move to compromise"
+
+msgid "Signer"
+msgstr "Sign"
+
+msgid "Aucune transaction."
+msgstr "No transaction."
+
+msgid "Modifier"
+msgstr "Edit"
+
+msgid "Ajouter"
+msgstr "Add"
+
+msgid "un bien"
+msgstr "a property"
+
+msgid "Caractéristiques"
+msgstr "Specs"
+
+msgid "Équipements"
+msgstr "Amenities"
+
+msgid "Adresse"
+msgstr "Address"
+
+msgid "Photos déjà associées :"
+msgstr "Photos already attached:"
+
+msgid "Connexion — Ymmo"
+msgstr "Sign in — Ymmo"
+
+msgid "Bon retour parmi nous."
+msgstr "Welcome back."
+
+msgid "Retrouvez vos favoris, vos demandes de visite et le suivi de vos transactions."
+msgstr "Find your favorites, visit requests and transaction follow-ups."
+
+msgid "On a trouvé notre maison en moins de trois semaines, conseillers vraiment à l'écoute."
+msgstr "Found our house in less than three weeks, advisors who actually listened."
+
+msgid "Camille D., cliente Aix-en-Provence"
+msgstr "Camille D., customer in Aix-en-Provence"
+
+msgid "Espace personnel"
+msgstr "Personal area"
+
+msgid "Connexion"
+msgstr "Sign in"
+
+msgid "Pas encore de compte ?"
+msgstr "No account yet?"
+
+msgid "Inscrivez-vous"
+msgstr "Sign up"
+
+msgid "Inscription — Ymmo"
+msgstr "Sign up — Ymmo"
+
+msgid "Rejoignez le réseau Ymmo."
+msgstr "Join the Ymmo network."
+
+msgid "Sauvegardez vos coups de cœur, demandez des visites en deux clics, recevez nos nouveautés."
+msgstr "Save your favorites, request visits in two clicks, hear about our new listings."
+
+msgid "Favoris synchronisés sur tous vos appareils."
+msgstr "Favorites synced across all your devices."
+
+msgid "Suivi des visites et des offres en cours."
+msgstr "Track your visits and ongoing offers."
+
+msgid "Alerte quand un bien correspondant à vos critères entre au catalogue."
+msgstr "Get notified when a matching property hits the catalogue."
+
+msgid "Inscription"
+msgstr "Sign up"
+
+msgid "Créer mon compte"
+msgstr "Create my account"
+
+msgid "Déjà inscrit ?"
+msgstr "Already registered?"
+
+msgid "Connectez-vous"
+msgstr "Sign in"
+
+msgid "Contacter l'agence"
+msgstr "Contact the agency"
+
+msgid "Contact"
+msgstr "Contact"
+
+msgid "Contacter l'agence."
+msgstr "Contact the agency."
+
+msgid "À propos de :"
+msgstr "About:"
+
+msgid "Bonjour, %(name)s."
+msgstr "Hello, %(name)s."
+
+msgid "Retrouvez vos favoris, vos demandes et vos transactions."
+msgstr "Find your favorites, requests and transactions."
+
+msgid "Sélection"
+msgstr "Selection"
+
+msgid "Mes favoris."
+msgstr "My favorites."
+
+msgid "Aucun favori pour l'instant."
+msgstr "No favorite yet."
+
+msgid "Parcourez les biens et cliquez sur ♥ pour les retrouver ici."
+msgstr "Browse the catalogue and tap ♥ to keep them here."
+
+msgid "Voir les biens"
+msgstr "Browse properties"
+
+msgid "Visites"
+msgstr "Visits"
+
+msgid "Mes demandes de visite."
+msgstr "My visit requests."
+
+msgid "Aucune demande de visite enregistrée."
+msgstr "No visit request recorded."
+
+msgid "Achat"
+msgstr "Purchase"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Vous n'avez pas encore de transaction en cours."
+msgstr "You have no transaction in progress."
+
+msgid "Demande de visite"
+msgstr "Visit request"
+
+msgid "Visite"
+msgstr "Visit"
+
+msgid "Demander une visite."
+msgstr "Request a visit."
+
+msgid "Accès refusé"
+msgstr "Access denied"
+
+msgid "Accès refusé."
+msgstr "Access denied."
+
+msgid "Votre compte n'a pas les permissions requises pour cette page."
+msgstr "Your account doesn't have the required permissions for this page."
+
+msgid "Retour à l'accueil"
+msgstr "Back to home"
+
+msgid "Page introuvable"
+msgstr "Page not found"
+
+msgid "Page introuvable."
+msgstr "Page not found."
+
+msgid "La page demandée n'existe pas ou n'est plus disponible."
+msgstr "The requested page doesn't exist or is no longer available."
+
+msgid "Erreur serveur"
+msgstr "Server error"
+
+msgid "Erreur serveur."
+msgstr "Server error."
+
+msgid "Une erreur interne est survenue. L'équipe technique a été notifiée."
+msgstr "An internal error occurred. Our technical team has been notified."
+
+msgid "Nos agences — Ymmo"
+msgstr "Our agencies — Ymmo"
+
+msgid "Notre réseau d'agences."
+msgstr "Our agency network."
+
+msgid "Le siège social Ymmo est implanté à Aix-en-Provence et notre réseau couvre l'ensemble du territoire."
+msgstr "Ymmo's head office is in Aix-en-Provence and our network covers the entire country."
+
+msgid "Siège"
+msgstr "HQ"
+
+msgid "Écrire"
+msgstr "Write"
+
+msgid "Fil dariane"
+msgstr "Breadcrumb"
+
+msgid "Accueil"
+msgstr "Home"
+
+msgid "Photo principale du bien "
+msgstr "Main photo of "
+
+msgid "Le bien"
+msgstr "The property"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Description non renseignée."
+msgstr "No description provided."
+
+msgid "À l'intérieur"
+msgstr "Inside"
+
+msgid "Surface"
+msgstr "Surface"
+
+msgid "Pièces"
+msgstr "Rooms"
+
+msgid "Chambres"
+msgstr "Bedrooms"
+
+msgid "Salles de bain"
+msgstr "Bathrooms"
+
+msgid "Étage"
+msgstr "Floor"
+
+msgid "Année"
+msgstr "Year"
+
+msgid "Classe énergie"
+msgstr "Energy class"
+
+msgid "Oui"
+msgstr "Yes"
+
+msgid "Non"
+msgstr "No"
+
+msgid "Balcon"
+msgstr "Balcony"
+
+msgid "Localisation"
+msgstr "Location"
+
+msgid "L'adresse complète est partagée après contact, en accord avec le vendeur."
+msgstr "Full address is shared after contact, with the seller's consent."
+
+msgid "Visitez ce bien"
+msgstr "Visit this property"
+
+msgid "Réponse sous 24h ouvrées par votre conseiller dédié."
+msgstr "Reply within 24 business hours by your dedicated advisor."
+
+msgid "Demander une visite"
+msgstr "Request a visit"
+
+msgid "Envoyer un message"
+msgstr "Send a message"
+
+msgid "Ajouter aux favoris"
+msgstr "Add to favorites"
+
+msgid "Pour demander une visite ou contacter l'agence :"
+msgstr "To request a visit or contact the agency:"
+
+msgid "Estimer un bien — Ymmo"
+msgstr "Estimate a property — Ymmo"
+
+msgid "Outil"
+msgstr "Tool"
+
+msgid "Modèle interne"
+msgstr "Internal model"
+
+msgid "Estimer un bien immobilier."
+msgstr "Estimate a property."
+
+msgid "Résultat"
+msgstr "Result"
+
+msgid "Soit environ"
+msgstr "About"
+
+msgid "Indice de confiance R² :"
+msgstr "R² confidence score:"
+
+msgid "Modèle :"
+msgstr "Model:"
+
+msgid "En attente de données."
+msgstr "Waiting for input."
+
+msgid "Renseignez les caractéristiques du bien pour obtenir une estimation."
+msgstr "Fill in the property details to get an estimate."
+
+msgid "Notre algorithme s'appuie sur une régression linéaire entraînée sur l'ensemble des biens du portefeuille Ymmo."
+msgstr "Our algorithm relies on a linear regression trained on the full Ymmo portfolio."
+
+msgid "Ymmo — acheter et vendre votre bien immobilier"
+msgstr "Ymmo — buy and sell your real estate property"
+
+msgid "Plateforme du groupe Ymmo"
+msgstr "Ymmo group platform"
+
+msgid "qui vous ressemble."
+msgstr "that suits you."
+
+msgid "Douze agences à travers la France, des centaines de biens choisis avec soin, et un outil d'estimation propulsé par notre algorithme maison."
+msgstr "Twelve agencies across France, hundreds of carefully selected properties, and a price estimator powered by our in-house algorithm."
+
+msgid "Recherche rapide"
+msgstr "Quick search"
+
+msgid "Rechercher : maison Aix, T3 Lyon…"
+msgstr "Search: house Aix, 3-room Lyon…"
+
+msgid "Mots-clés"
+msgstr "Keywords"
+
+msgid "Ville"
+msgstr "City"
+
+msgid "Toutes les villes"
+msgstr "All cities"
+
+msgid "Type de bien"
+msgstr "Property type"
+
+msgid "Tous types"
+msgstr "All types"
+
+msgid "Chercher"
+msgstr "Search"
+
+msgid "Chiffres clés"
+msgstr "Key figures"
+
+msgid "agences en France"
+msgstr "agencies in France"
+
+msgid "biens au catalogue"
+msgstr "properties in catalogue"
+
+msgid "villes couvertes"
+msgstr "cities covered"
+
+msgid "siège · Aix-en-Provence"
+msgstr "HQ · Aix-en-Provence"
+
+msgid "Les biens les plus consultés cette semaine."
+msgstr "Most viewed properties this week."
+
+msgid "Tous les biens"
+msgstr "All properties"
+
+msgid "Catalogue en cours de mise à jour."
+msgstr "Catalogue update in progress."
+
+msgid "Aucun bien disponible pour le moment. Revenez très vite !"
+msgstr "No properties available right now. Check back soon!"
+
+msgid "Tendances par ville."
+msgstr "Trends by city."
+
+msgid "Voir le tableau de bord"
+msgstr "View the dashboard"
+
+msgid "Pas encore de données de marché à afficher."
+msgstr "No market data to show yet."
+
+msgid "Méthode"
+msgstr "Approach"
+
+msgid "Une approche différente de l'immobilier."
+msgstr "A different take on real estate."
+
+msgid "Conseillers de proximité"
+msgstr "Neighbourhood advisors"
+
+msgid "Chaque agence est gérée comme une boutique : on connaît le quartier, on connaît les gens."
+msgstr "Each agency is run like a boutique: we know the neighbourhood, we know the people."
+
+msgid "Estimation transparente"
+msgstr "Transparent estimation"
+
+msgid "Notre estimateur explique ce qu'il fait : un modèle entraîné sur notre portefeuille, avec un score de confiance."
+msgstr "Our estimator explains itself: a model trained on our portfolio, with a confidence score."
+
+msgid "Données ouvertes"
+msgstr "Open data"
+
+msgid "Le tableau de bord du marché est public. Pas de boîte noire : vous voyez ce qu'on voit."
+msgstr "The market dashboard is public. No black box: you see what we see."
+
+msgid "Recherche de biens — Ymmo"
+msgstr "Property search — Ymmo"
+
+msgid "Catalogue"
+msgstr "Catalogue"
+
+msgid "Trouver un bien"
+msgstr "Find a property"
+
+msgid "Critères"
+msgstr "Filters"
+
+msgid "Rechercher"
+msgstr "Search"
+
+msgid "Réinitialiser les filtres"
+msgstr "Reset filters"
+
+msgid "résultats"
+msgstr "results"
+
+msgid "Trier"
+msgstr "Sort"
+
+msgid "Plus récents"
+msgstr "Most recent"
+
+msgid "Prix croissant"
+msgstr "Price ascending"
+
+msgid "Prix décroissant"
+msgstr "Price descending"
+
+msgid "Plus grande surface"
+msgstr "Largest surface"
+
+msgid "Plus consultés"
+msgstr "Most viewed"
+
+msgid "Aucun résultat."
+msgstr "No results."
+
+msgid "Essayez d'élargir vos critères ou de retirer un filtre."
+msgstr "Try widening your filters or removing one."
+
+msgid "Voir tous les biens"
+msgstr "See all properties"
+
+msgid "Marché immobilier — Ymmo"
+msgstr "Real estate market — Ymmo"
+
+msgid "Données"
+msgstr "Data"
+
+msgid "Mises à jour en continu"
+msgstr "Continuously updated"
+
+msgid "Tableau de bord du marché"
+msgstr "Market dashboard"
+
+msgid "Indicateurs calculés en temps réel sur le portefeuille Ymmo."
+msgstr "Indicators computed in real time on the Ymmo portfolio."
+
+msgid "Indicateurs clés"
+msgstr "Key indicators"
+
+msgid "Transactions enregistrées"
+msgstr "Recorded transactions"
+
+msgid "Actes authentiques"
+msgstr "Signed deeds"
+
+msgid "Panier moyen signé"
+msgstr "Average signed deal"
+
+msgid "j"
+msgstr "d"
+
+msgid "Durée moyenne du cycle"
+msgstr "Average sales cycle"
+
+msgid "Géographie"
+msgstr "Geography"
+
+msgid "Prix moyen au m² par ville."
+msgstr "Average price per sqm by city."
+
+msgid "Score d'opportunité"
+msgstr "Opportunity score"
+
+msgid "Meilleures zones où investir."
+msgstr "Best zones to invest."
+
+msgid "Score combinant la demande (vues) et le coût au m². Plus le score est élevé, plus la zone est attractive à prix maîtrisé."
+msgstr "Score combining demand (views) and cost per sqm. The higher the score, the more attractive the zone at controlled price."
+
+msgid "Top zones où investir"
+msgstr "Top investment zones"
+
+msgid "Prix moyen"
+msgstr "Average price"
+
+msgid "Prix/m²"
+msgstr "Price/sqm"
+
+msgid "Score"
+msgstr "Score"
+
+msgid "Typologie"
+msgstr "Typology"
+
+msgid "Prix moyen par type de bien."
+msgstr "Average price by property type."
+
+msgid "en moyenne"
+msgstr "on average"
+
+msgid "Équipements les plus présents."
+msgstr "Most common amenities."
+
+msgid "Distribution"
+msgstr "Distribution"
+
+msgid "Distribution des prix."
+msgstr "Price distribution."
+
+msgid "%(num)d pièce"
+msgid_plural "%(num)d pièces"
+msgstr[0] "%(num)d room"
+msgstr[1] "%(num)d rooms"
+
+msgid "%(num)d consultation"
+msgid_plural "%(num)d consultations"
+msgstr[0] "%(num)d view"
+msgstr[1] "%(num)d views"
+
+msgid "%(num)d bien correspond à votre recherche."
+msgid_plural "%(num)d biens correspondent à votre recherche."
+msgstr[0] "%(num)d property matches your search."
+msgstr[1] "%(num)d properties match your search."
+
+msgid "%(num)d bien"
+msgid_plural "%(num)d biens"
+msgstr[0] "%(num)d property"
+msgstr[1] "%(num)d properties"
