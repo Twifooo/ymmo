@@ -6,11 +6,11 @@ authentique pour produire les indicateurs métier.
 
 from __future__ import annotations
 
-from datetime import datetime
 from enum import Enum
 
 from flask_babel import gettext as _
 
+from .._time import utcnow
 from ..extensions import db
 
 
@@ -49,7 +49,7 @@ class Transaction(db.Model):
         index=True,
     )
 
-    offer_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    offer_date = db.Column(db.DateTime, default=utcnow, nullable=False)
     compromise_date = db.Column(db.DateTime)
     signed_date = db.Column(db.DateTime)
     notes = db.Column(db.Text, default="")

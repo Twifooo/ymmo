@@ -7,13 +7,13 @@ on garde uniquement le hash via Werkzeug.
 
 from __future__ import annotations
 
-from datetime import datetime
 from enum import Enum
 
 from flask_babel import gettext as _
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from .._time import utcnow
 from ..extensions import db
 
 
@@ -47,7 +47,7 @@ class User(UserMixin, db.Model):
         index=True,
     )
     is_active_user = db.Column(db.Boolean, nullable=False, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     agency_id = db.Column(db.Integer, db.ForeignKey("agencies.id"), nullable=True)
     agency = db.relationship("Agency", back_populates="agents")

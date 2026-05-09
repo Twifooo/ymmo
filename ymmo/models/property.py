@@ -6,11 +6,11 @@ Les images sont gérées dans une table séparée pour respecter la 1NF.
 
 from __future__ import annotations
 
-from datetime import datetime
 from enum import Enum
 
 from flask_babel import gettext as _
 
+from .._time import utcnow
 from ..extensions import db
 
 
@@ -88,9 +88,9 @@ class Property(db.Model):
     longitude = db.Column(db.Float)
 
     views_count = db.Column(db.Integer, nullable=False, default=0)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False, index=True)
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        db.DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )
 
     agency_id = db.Column(db.Integer, db.ForeignKey("agencies.id"), nullable=False)

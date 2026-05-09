@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from .._time import utcnow
 
 from ..extensions import db
 
@@ -19,7 +19,7 @@ class Message(db.Model):
 
     subject = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
-    sent_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False, index=True)
+    sent_at = db.Column(db.DateTime, default=utcnow, nullable=False, index=True)
     read_at = db.Column(db.DateTime)
 
     sender = db.relationship("User", foreign_keys=[sender_id])

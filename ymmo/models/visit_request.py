@@ -2,11 +2,11 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 from enum import Enum
 
 from flask_babel import gettext as _
 
+from .._time import utcnow
 from ..extensions import db
 
 
@@ -35,7 +35,7 @@ class VisitRequest(db.Model):
     )
     client_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
 
-    requested_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    requested_at = db.Column(db.DateTime, default=utcnow, nullable=False)
     preferred_date = db.Column(db.DateTime)
     message = db.Column(db.Text, nullable=False, default="")
     status = db.Column(

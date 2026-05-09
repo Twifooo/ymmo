@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 from decimal import Decimal
 
+from .._time import utcnow
 from ..extensions import db
 from ..models import (
     Property,
@@ -34,7 +34,7 @@ class TransactionService:
     @staticmethod
     def progress(transaction: Transaction, new_status: TransactionStatus) -> Transaction:
         transaction.status = new_status
-        now = datetime.utcnow()
+        now = utcnow()
         if new_status == TransactionStatus.COMPROMISE and not transaction.compromise_date:
             transaction.compromise_date = now
             transaction.property.status = PropertyStatus.UNDER_OFFER

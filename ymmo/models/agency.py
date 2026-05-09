@@ -6,7 +6,7 @@ qui sont rattachés à des biens.
 
 from __future__ import annotations
 
-from datetime import datetime
+from .._time import utcnow
 
 from ..extensions import db
 
@@ -22,7 +22,7 @@ class Agency(db.Model):
     phone = db.Column(db.String(30))
     email = db.Column(db.String(255))
     is_headquarters = db.Column(db.Boolean, nullable=False, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     agents = db.relationship("User", back_populates="agency")
     properties = db.relationship("Property", back_populates="agency")
