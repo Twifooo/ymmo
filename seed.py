@@ -11,13 +11,20 @@ Le script supprime puis recrée toutes les tables, puis injecte :
 
 from __future__ import annotations
 
+import logging
 import random
-from datetime import datetime, timedelta
+from datetime import timedelta
 from decimal import Decimal
 
-from ymmo import create_app
-from ymmo.extensions import db
-from ymmo.models import (
+from dotenv import load_dotenv
+
+# Charger .env avant l'import de la factory : la config est lue à l'import.
+load_dotenv()
+
+from ymmo import create_app  # noqa: E402
+from ymmo._time import utcnow  # noqa: E402
+from ymmo.extensions import db  # noqa: E402
+from ymmo.models import (  # noqa: E402
     Agency,
     Favorite,
     Property,
@@ -32,39 +39,52 @@ from ymmo.models import (
     VisitStatus,
 )
 
+
+logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
+logger = logging.getLogger("seed")
+
 random.seed(42)
 
-# 1 siège + 12 agences ----------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Référentiels (agences, villes, latitudes, photos, prénoms / noms).
+# ---------------------------------------------------------------------------
+
+# 1 siège + 12 agences. Le tuple porte aussi (lat, lng) du siège local pour
+# que la carte Leaflet puisse pointer chaque agence sur la France.
 AGENCIES = [
-    ("Ymmo Aix-en-Provence", "Aix-en-Provence", "13100", "12 cours Mirabeau", True),
-    ("Ymmo Marseille", "Marseille", "13008", "45 rue Paradis", False),
-    ("Ymmo Lyon", "Lyon", "69002", "8 place Bellecour", False),
-    ("Ymmo Paris", "Paris", "75008", "120 avenue des Champs-Élysées", False),
-    ("Ymmo Bordeaux", "Bordeaux", "33000", "10 cours de l'Intendance", False),
-    ("Ymmo Toulouse", "Toulouse", "31000", "5 place du Capitole", False),
-    ("Ymmo Nantes", "Nantes", "44000", "30 rue Crébillon", False),
-    ("Ymmo Lille", "Lille", "59800", "22 rue Faidherbe", False),
-    ("Ymmo Strasbourg", "Strasbourg", "67000", "18 place Kléber", False),
-    ("Ymmo Nice", "Nice", "06000", "9 promenade des Anglais", False),
-    ("Ymmo Rennes", "Rennes", "35000", "14 rue Saint-Michel", False),
-    ("Ymmo Montpellier", "Montpellier", "34000", "7 place de la Comédie", False),
-    ("Ymmo Grenoble", "Grenoble", "38000", "3 rue Félix Poulat", False),
+    ("Ymmo Aix-en-Provence", "Aix-en-Provence", "13100", "12 cours Mirabeau", True,  43.5297, 5.4474),
+    ("Ymmo Marseille",       "Marseille",       "13008", "45 rue Paradis",            False, 43.2965, 5.3698),
+    ("Ymmo Lyon",            "Lyon",            "69002", "8 place Bellecour",         False, 45.7578, 4.8320),
+    ("Ymmo Paris",           "Paris",           "75008", "120 avenue des Champs-Élysées", False, 48.8566, 2.3522),
+    ("Ymmo Bordeaux",        "Bordeaux",        "33000", "10 cours de l'Intendance",  False, 44.8378, -0.5792),
+    ("Ymmo Toulouse",        "Toulouse",        "31000", "5 place du Capitole",       False, 43.6047, 1.4442),
+    ("Ymmo Nantes",          "Nantes",          "44000", "30 rue Crébillon",          False, 47.2184, -1.5536),
+    ("Ymmo Lille",           "Lille",           "59800", "22 rue Faidherbe",          False, 50.6292, 3.0573),
+    ("Ymmo Strasbourg",      "Strasbourg",      "67000", "18 place Kléber",           False, 48.5734, 7.7521),
+    ("Ymmo Nice",            "Nice",            "06000", "9 promenade des Anglais",   False, 43.7102, 7.2620),
+    ("Ymmo Rennes",          "Rennes",          "35000", "14 rue Saint-Michel",       False, 48.1173, -1.6778),
+    ("Ymmo Montpellier",     "Montpellier",     "34000", "7 place de la Comédie",     False, 43.6108, 3.8767),
+    ("Ymmo Grenoble",        "Grenoble",        "38000", "3 rue Félix Poulat",        False, 45.1885, 5.7245),
 ]
 
+# Pool : (ville, code postal, prix moyen au m², lat, lng).
+# La lat/lng permet au front de placer chaque bien sur une carte interactive
+# sans dépendre d'un service externe de géocodage.
 CITIES_POOL = [
-    ("Aix-en-Provence", "13100", 5500),
-    ("Marseille", "13008", 4200),
-    ("Lyon", "69002", 5300),
-    ("Paris", "75008", 11500),
-    ("Bordeaux", "33000", 5000),
-    ("Toulouse", "31000", 4100),
-    ("Nantes", "44000", 4200),
-    ("Lille", "59800", 3700),
-    ("Strasbourg", "67000", 3600),
-    ("Nice", "06000", 5200),
-    ("Rennes", "35000", 4000),
-    ("Montpellier", "34000", 3900),
-    ("Grenoble", "38000", 3400),
+    ("Aix-en-Provence", "13100",  5500, 43.5297, 5.4474),
+    ("Marseille",       "13008",  4200, 43.2965, 5.3698),
+    ("Lyon",            "69002",  5300, 45.7578, 4.8320),
+    ("Paris",           "75008", 11500, 48.8566, 2.3522),
+    ("Bordeaux",        "33000",  5000, 44.8378, -0.5792),
+    ("Toulouse",        "31000",  4100, 43.6047, 1.4442),
+    ("Nantes",          "44000",  4200, 47.2184, -1.5536),
+    ("Lille",           "59800",  3700, 50.6292, 3.0573),
+    ("Strasbourg",      "67000",  3600, 48.5734, 7.7521),
+    ("Nice",            "06000",  5200, 43.7102, 7.2620),
+    ("Rennes",          "35000",  4000, 48.1173, -1.6778),
+    ("Montpellier",     "34000",  3900, 43.6108, 3.8767),
+    ("Grenoble",        "38000",  3400, 45.1885, 5.7245),
 ]
 
 FIRST_NAMES = ["Léa", "Hugo", "Camille", "Nathan", "Inès", "Sacha", "Lina", "Théo",
@@ -144,7 +164,7 @@ def random_user(role: UserRole, agency_id: int | None = None) -> User:
 
 
 def random_property(agent: User, agencies: list[Agency]) -> Property:
-    city, postal, base_price = random.choice(CITIES_POOL)
+    city, postal, base_price, lat, lng = random.choice(CITIES_POOL)
     ptype = random.choices(
         list(PropertyType),
         weights=[5, 4, 1, 1, 1],
@@ -184,6 +204,11 @@ def random_property(agent: User, agencies: list[Agency]) -> Property:
         k=1,
     )[0]
 
+    # Léger jitter sur la lat/lng pour que les marqueurs ne se chevauchent pas
+    # tous au même endroit dans Leaflet (~1.5 km de variance).
+    jitter_lat = random.uniform(-0.015, 0.015)
+    jitter_lng = random.uniform(-0.015, 0.015)
+
     return Property(
         title=f"{ptype.label} {surface} m² {city}",
         description=(
@@ -206,10 +231,12 @@ def random_property(agent: User, agencies: list[Agency]) -> Property:
         address=f"{random.randint(1, 200)} rue {random.choice(['des Lilas', 'Victor Hugo', 'du Parc', 'Pasteur', 'de la République'])}",
         city=city,
         postal_code=postal,
+        latitude=round(lat + jitter_lat, 6),
+        longitude=round(lng + jitter_lng, 6),
         views_count=random.randint(0, 350),
         agent_id=agent.id,
         agency_id=agent.agency_id or agencies[0].id,
-        created_at=datetime.utcnow() - timedelta(days=random.randint(0, 200)),
+        created_at=utcnow() - timedelta(days=random.randint(0, 200)),
     )
 
 
@@ -219,11 +246,12 @@ def main() -> None:
     # Flask-Babel : nos enums utilisent gettext() pour le label, qui exige
     # une locale. Sans contexte de requête, l'accès à `.label` plante.
     with app.app_context(), app.test_request_context():
+        logger.info("DROP + CREATE des tables")
         db.drop_all()
         db.create_all()
 
         agencies: list[Agency] = []
-        for name, city, pc, addr, hq in AGENCIES:
+        for name, city, pc, addr, hq, _lat, _lng in AGENCIES:
             agency = Agency(
                 name=name,
                 city=city,
@@ -236,6 +264,7 @@ def main() -> None:
             agencies.append(agency)
         db.session.add_all(agencies)
         db.session.commit()
+        logger.info("13 agences créées")
 
         admin = User(
             email="admin@ymmo.fr",
@@ -277,6 +306,7 @@ def main() -> None:
         db.session.add_all(agents)
         db.session.add_all(clients)
         db.session.commit()
+        logger.info("%d agents + %d clients créés", len(agents), len(clients))
 
         properties: list[Property] = []
         for _ in range(120):
@@ -284,6 +314,7 @@ def main() -> None:
             properties.append(random_property(agent, agencies))
         db.session.add_all(properties)
         db.session.commit()
+        logger.info("%d biens créés", len(properties))
 
         for prop in properties:
             urls = photos_for(prop.type, random.randint(2, 4))
@@ -308,8 +339,8 @@ def main() -> None:
                 VisitRequest(
                     property_id=prop.id,
                     client_id=client.id,
-                    requested_at=datetime.utcnow() - timedelta(days=random.randint(0, 60)),
-                    preferred_date=datetime.utcnow() + timedelta(days=random.randint(1, 20)),
+                    requested_at=utcnow() - timedelta(days=random.randint(0, 60)),
+                    preferred_date=utcnow() + timedelta(days=random.randint(1, 20)),
                     message="Bonjour, votre bien m'intéresse, pouvons-nous convenir d'une visite ?",
                     status=random.choice(list(VisitStatus)),
                 )
@@ -318,7 +349,7 @@ def main() -> None:
         sold_props = [p for p in properties if p.status == PropertyStatus.SOLD]
         for prop in sold_props:
             buyer = random.choice(clients)
-            offer_date = datetime.utcnow() - timedelta(days=random.randint(60, 200))
+            offer_date = utcnow() - timedelta(days=random.randint(60, 200))
             signed_date = offer_date + timedelta(days=random.randint(45, 120))
             offer_amount = Decimal(int(float(prop.price) * random.uniform(0.92, 1.0)))
             db.session.add(
@@ -337,7 +368,7 @@ def main() -> None:
 
         for prop in [p for p in properties if p.status == PropertyStatus.UNDER_OFFER]:
             buyer = random.choice(clients)
-            offer_date = datetime.utcnow() - timedelta(days=random.randint(10, 60))
+            offer_date = utcnow() - timedelta(days=random.randint(10, 60))
             db.session.add(
                 Transaction(
                     property_id=prop.id,
@@ -351,13 +382,14 @@ def main() -> None:
             )
 
         db.session.commit()
-
-        print(f"OK : {len(agencies)} agences, {len(agents)} agents, "
-              f"{len(clients)} clients, {len(properties)} biens.")
-        print("Comptes de démo :")
-        print("  admin  : admin@ymmo.fr  / admin12345")
-        print("  agent  : agent@ymmo.fr  / agent12345")
-        print("  client : client@ymmo.fr / client12345")
+        logger.info(
+            "Terminé : %d agences, %d agents, %d clients, %d biens",
+            len(agencies), len(agents), len(clients), len(properties),
+        )
+        logger.info("Comptes de démo :")
+        logger.info("  admin  : admin@ymmo.fr  / admin12345")
+        logger.info("  agent  : agent@ymmo.fr  / agent12345")
+        logger.info("  client : client@ymmo.fr / client12345")
 
 
 if __name__ == "__main__":
