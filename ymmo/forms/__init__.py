@@ -6,6 +6,7 @@ from .property_forms import (
     PriceEstimationForm,
     PropertyForm,
     PropertySearchForm,
+    SavedSearchForm,
     VisitRequestForm,
 )
 
@@ -16,5 +17,6 @@ __all__ = [
     "PropertyForm",
     "PropertySearchForm",
     "RegisterForm",
+    "SavedSearchForm",
     "VisitRequestForm",
 ]

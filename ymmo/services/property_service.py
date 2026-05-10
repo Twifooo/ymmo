@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import secrets
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from flask import current_app
+from markupsafe import escape
 from werkzeug.datastructures import FileStorage
 from werkzeug.utils import secure_filename
 
@@ -28,6 +30,18 @@ from ..repositories.property_repository import PropertySearchCriteria
 
 class PropertyError(Exception):
     """Erreur métier liée à un bien."""
+
+
+@dataclass
+class UploadReport:
+    """Compte-rendu d'un upload multi-fichiers : combien acceptés, rejetés et pourquoi."""
+
+    saved: int = 0
+    rejected: list[tuple[str, str]] = None  # (filename, reason)
+
+    def __post_init__(self) -> None:
+        if self.rejected is None:
+            self.rejected = []
 
 
 class PropertyService:
@@ -126,32 +140,57 @@ class PropertyService:
         raise PropertyError("Action non autorisée sur ce bien.")
 
     @staticmethod
-    def attach_images(prop: Property, files: list[FileStorage]) -> int:
+    def attach_images(prop: Property, files: list[FileStorage]) -> UploadReport:
+        """Sauvegarde les images uploadées et renvoie un rapport détaillé.
+
+        Avant : silencieux, l'utilisateur ne voyait pas les rejets.
+        Maintenant : on remonte ``saved`` + liste des rejets pour que le
+        blueprint puisse flasher un message clair.
+        """
         allowed = current_app.config["ALLOWED_IMAGE_EXTENSIONS"]
         upload_dir: Path = current_app.config["UPLOAD_FOLDER"]
         upload_dir.mkdir(parents=True, exist_ok=True)
-        saved = 0
+
+        report = UploadReport()
+        # On sanitise le titre du bien avant de l'utiliser dans alt_text :
+        # un titre malveillant pourrait contenir du HTML qu'on stockerait brut.
+        safe_title = escape(prop.title or "")[:200]
+
         for file in files:
             if not file or not file.filename:
                 continue
-            ext = file.filename.rsplit(".", 1)[-1].lower()
+            ext = file.filename.rsplit(".", 1)[-1].lower() if "." in file.filename else ""
             if ext not in allowed:
+                report.rejected.append((file.filename, "format non supporté"))
                 continue
+            # Limite individuelle : 4 Mo (au-delà, on refuse pour ne pas saturer).
+            file.seek(0, 2)
+            size = file.tell()
+            file.seek(0)
+            if size > 4 * 1024 * 1024:
+                report.rejected.append((file.filename, "fichier > 4 Mo"))
+                continue
+
             unique = f"{secrets.token_hex(8)}_{secure_filename(file.filename)}"
             path = upload_dir / unique
-            file.save(path)
+            try:
+                file.save(path)
+            except OSError as exc:
+                report.rejected.append((file.filename, f"écriture impossible : {exc}"))
+                continue
+
             db.session.add(
                 PropertyImage(
                     property_id=prop.id,
                     url=f"/static/uploads/{unique}",
-                    alt_text=f"Photo de {prop.title}",
+                    alt_text=f"Photo de {safe_title}",
                     position=len(prop.images),
                 )
             )
-            saved += 1
-        if saved:
+            report.saved += 1
+        if report.saved:
             db.session.commit()
-        return saved
+        return report
 
     @staticmethod
     def toggle_favorite(user: User, property_id: int) -> bool:
@@ -183,3 +222,8 @@ class PropertyService:
         db.session.add(visit)
         db.session.commit()
         return visit
+
+    @staticmethod
+    def favorited_by(prop: Property) -> list[User]:
+        """Liste des clients ayant mis ce bien en favori (vue agent)."""
+        return [fav.user for fav in prop.favorites]

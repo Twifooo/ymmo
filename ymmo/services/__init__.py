@@ -5,10 +5,11 @@ transport HTTP. Un service peut être appelé depuis un blueprint web,
 une commande CLI ou un test sans modification.
 """
 
-from .auth_service import AuthService, AuthError
-from .property_service import PropertyService, PropertyError
-from .transaction_service import TransactionService
 from .analytics_service import AnalyticsService
+from .auth_service import AuthError, AuthService
+from .property_service import PropertyError, PropertyService, UploadReport
+from .saved_search_service import SavedSearchService
+from .transaction_service import TransactionService
 
 __all__ = [
     "AnalyticsService",
@@ -16,5 +17,7 @@ __all__ = [
     "AuthService",
     "PropertyError",
     "PropertyService",
+    "SavedSearchService",
     "TransactionService",
+    "UploadReport",
 ]

@@ -28,6 +28,8 @@ def _status_choices() -> list[tuple[str, str]]:
 
 
 class PropertySearchForm(FlaskForm):
+    # Recherche en GET, on ne stocke rien -> CSRF inutile et gênant ici
+    # (sinon le bookmark / lien copié casse).
     class Meta:
         csrf = False
 
@@ -123,8 +125,7 @@ class ContactAgencyForm(FlaskForm):
 
 
 class PriceEstimationForm(FlaskForm):
-    class Meta:
-        csrf = False
+    """Estimateur de prix. CSRF activé car on poste depuis un formulaire utilisateur."""
 
     type = SelectField("Type", choices=_type_choices(), validators=[DataRequired()])
     city = StringField("Ville", validators=[DataRequired(), Length(max=120)])
@@ -136,3 +137,18 @@ class PriceEstimationForm(FlaskForm):
     has_garden = BooleanField("Jardin")
     has_balcony = BooleanField("Balcon")
     submit = SubmitField("Estimer")
+
+
+class SavedSearchForm(FlaskForm):
+    """Création / mise à jour d'une alerte client."""
+
+    label = StringField("Libellé", validators=[DataRequired(), Length(max=120)])
+    city = StringField("Ville", validators=[Optional(), Length(max=120)])
+    property_type = SelectField(
+        "Type",
+        choices=[("", "Indifférent")] + _type_choices(),
+        validators=[Optional()],
+    )
+    max_price = DecimalField("Prix max (€)", validators=[Optional(), NumberRange(min=0)])
+    min_surface = DecimalField("Surface min (m²)", validators=[Optional(), NumberRange(min=0)])
+    submit = SubmitField("Créer l'alerte")
