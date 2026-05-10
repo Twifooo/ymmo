@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import or_, select
 
 from ..extensions import db
 from ..models import User, UserRole
@@ -26,6 +26,28 @@ class UserRepository:
     @staticmethod
     def list_all() -> list[User]:
         return list(db.session.scalars(select(User).order_by(User.created_at.desc())))
+
+    @staticmethod
+    def search(query: str | None = None, role: UserRole | None = None,
+               page: int = 1, per_page: int = 20) -> tuple[list[User], int]:
+        """Recherche/filtrage paginée pour la console admin."""
+        stmt = select(User)
+        count_stmt = select(db.func.count(User.id))
+        if role:
+            stmt = stmt.where(User.role == role)
+            count_stmt = count_stmt.where(User.role == role)
+        if query:
+            q = f"%{query.lower().strip()}%"
+            cond = or_(
+                db.func.lower(User.email).like(q),
+                db.func.lower(User.first_name).like(q),
+                db.func.lower(User.last_name).like(q),
+            )
+            stmt = stmt.where(cond)
+            count_stmt = count_stmt.where(cond)
+        total = db.session.execute(count_stmt).scalar_one()
+        stmt = stmt.order_by(User.created_at.desc()).offset((page - 1) * per_page).limit(per_page)
+        return list(db.session.scalars(stmt)), int(total)
 
     @staticmethod
     def add(user: User) -> User:

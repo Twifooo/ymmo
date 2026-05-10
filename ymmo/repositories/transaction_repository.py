@@ -6,6 +6,7 @@ from typing import Any
 
 from sqlalchemy import select, text
 
+from .._time import utcnow
 from ..extensions import db
 from ..models import Transaction
 
@@ -40,8 +41,13 @@ class TransactionRepository:
         return list(db.session.scalars(stmt))
 
     @staticmethod
-    def monthly_revenue(year: int) -> list[dict[str, Any]]:
-        """Chiffre d'affaires signé par mois pour l'année donnée."""
+    def monthly_revenue(year: int | None = None) -> list[dict[str, Any]]:
+        """Chiffre d'affaires signé par mois pour l'année donnée.
+
+        ``year`` : année calendaire ; par défaut l'année en cours.
+        """
+        if year is None:
+            year = utcnow().year
         sql = text(
             """
             SELECT CAST(strftime('%m', t.signed_date) AS INTEGER) AS month,
@@ -77,3 +83,27 @@ class TransactionRepository:
         )
         row = db.session.execute(sql).first()
         return dict(row._mapping) if row else {}
+
+    @staticmethod
+    def all_for_dataframe() -> list[dict[str, Any]]:
+        """Export brut joint avec User et Property pour les analyses pandas
+        (ranking agents, vélocité par type)."""
+        sql = text(
+            """
+            SELECT t.id,
+                   t.status,
+                   t.offer_amount,
+                   t.final_amount,
+                   t.offer_date,
+                   t.compromise_date,
+                   t.signed_date,
+                   t.agent_id,
+                   (u.first_name || ' ' || u.last_name) AS agent_name,
+                   p.type   AS property_type,
+                   p.city   AS property_city
+            FROM transactions t
+            JOIN users      u ON u.id = t.agent_id
+            JOIN properties p ON p.id = t.property_id
+            """
+        )
+        return [dict(row._mapping) for row in db.session.execute(sql)]

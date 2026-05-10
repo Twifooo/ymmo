@@ -6,10 +6,13 @@ agrégations -> rendu JSON-friendly pour les vues.
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any
 
 import numpy as np
 import pandas as pd
+
+from .._time import utcnow
 
 
 NUMERIC_COLUMNS = ("price", "surface", "rooms", "bedrooms", "bathrooms", "views_count")
@@ -36,6 +39,8 @@ def build_property_dataframe(rows: list[dict[str, Any]]) -> pd.DataFrame:
         df["type"] = df["type"].astype(str).str.replace("PropertyType.", "", regex=False)
     if "status" in df.columns:
         df["status"] = df["status"].astype(str).str.replace("PropertyStatus.", "", regex=False)
+    if "created_at" in df.columns:
+        df["created_at"] = pd.to_datetime(df["created_at"], errors="coerce")
 
     df = df.dropna(subset=["price", "surface"])
     df = df[(df["surface"] > 0) & (df["price"] > 0)]
@@ -48,6 +53,8 @@ class MarketAnalysis:
 
     def __init__(self, df: pd.DataFrame) -> None:
         self.df = df
+
+    # -- Indicateurs simples --------------------------------------------
 
     def popular_features(self) -> dict[str, float]:
         """Pourcentage de biens disposant de chaque équipement."""
@@ -129,3 +136,173 @@ class MarketAnalysis:
             }
             for i in range(len(counts))
         ]
+
+    # -- Détection d'anomalies -----------------------------------------
+
+    def anomalies(self, sigma: float = 2.0) -> list[dict[str, Any]]:
+        """Identifie les biens dont le prix au m² s'écarte de plus de ``sigma``
+        écarts-types par rapport à la moyenne (city, type).
+
+        Utilisé sur le tableau de bord agent pour signaler une annonce
+        possiblement mal valorisée (sur- ou sous-cotée).
+        """
+        if self.df.empty or "city" not in self.df.columns or "type" not in self.df.columns:
+            return []
+
+        grouped = self.df.groupby(["city", "type"])["price_per_sqm"].agg(["mean", "std"]).reset_index()
+        merged = self.df.merge(grouped, on=["city", "type"], how="left")
+        # On évite la division par zéro quand un groupe ne contient qu'un bien.
+        merged = merged[merged["std"].fillna(0) > 0]
+        merged["zscore"] = (merged["price_per_sqm"] - merged["mean"]) / merged["std"]
+
+        flagged = merged[merged["zscore"].abs() >= sigma].copy()
+        flagged["delta_pct"] = (
+            (flagged["price_per_sqm"] - flagged["mean"]) / flagged["mean"] * 100
+        ).round(1)
+        flagged["zscore"] = flagged["zscore"].round(2)
+
+        cols = ["id", "title", "city", "type", "price", "price_per_sqm", "mean", "zscore", "delta_pct"]
+        cols = [c for c in cols if c in flagged.columns]
+        return flagged[cols].to_dict(orient="records")
+
+    def anomaly_ids(self, sigma: float = 2.0) -> set[int]:
+        """Helper pratique pour décorer les listes côté template."""
+        return {int(a["id"]) for a in self.anomalies(sigma=sigma) if "id" in a}
+
+    # -- Tendance temporelle (prix moyen sur 6 mois par ville) ---------
+
+    def price_trend(self, months: int = 6, top_cities: int = 5) -> dict[str, Any]:
+        """Renvoie les prix moyens par mois sur ``months`` derniers mois,
+        pour les ``top_cities`` villes les plus représentées.
+
+        Retour : ``{"labels": [...mois...], "series": {city: [..valeurs..]}}``
+        Permet de tracer un line-chart SVG côté template (fait main, pas de
+        librairie externe).
+        """
+        if self.df.empty or "created_at" not in self.df.columns:
+            return {"labels": [], "series": {}}
+
+        end = utcnow().replace(day=1)
+        start = end - timedelta(days=30 * months)
+        df = self.df[self.df["created_at"] >= start].copy()
+        if df.empty:
+            return {"labels": [], "series": {}}
+
+        df["month"] = df["created_at"].dt.to_period("M").astype(str)
+        # On garde les villes les plus représentées pour ne pas saturer le graphique.
+        cities = df["city"].value_counts().head(top_cities).index.tolist()
+        df = df[df["city"].isin(cities)]
+
+        pivot = (
+            df.groupby(["month", "city"])["price_per_sqm"]
+            .mean()
+            .round(0)
+            .unstack(fill_value=0)
+        )
+        pivot = pivot.sort_index()
+        # Chaque colonne devient une série, on conserve l'ordre des mois.
+        return {
+            "labels": list(pivot.index),
+            "series": {city: [int(v) for v in pivot[city].tolist()] for city in pivot.columns},
+        }
+
+
+# ---------------------------------------------------------------------------
+# Helpers indépendants : ranking agents, vélocité de vente, revenu mensuel.
+# Ces fonctions sont volontairement out of class : elles consomment d'autres
+# DataFrames (transactions) que le DF des biens passé à MarketAnalysis.
+# ---------------------------------------------------------------------------
+
+
+def agent_ranking(transactions: list[dict[str, Any]], top: int = 10) -> list[dict[str, Any]]:
+    """Classe les agents par : ventes signées DESC, panier moyen DESC,
+    durée moyenne ASC.
+
+    ``transactions`` doit contenir : agent_id, agent_name, status,
+    final_amount, offer_date, signed_date.
+    """
+    df = pd.DataFrame(transactions)
+    if df.empty:
+        return []
+
+    df = df[df["status"] == "signed"].copy()
+    if df.empty:
+        return []
+    df["offer_date"] = pd.to_datetime(df["offer_date"], errors="coerce")
+    df["signed_date"] = pd.to_datetime(df["signed_date"], errors="coerce")
+    df["cycle_days"] = (df["signed_date"] - df["offer_date"]).dt.days
+
+    grouped = (
+        df.groupby(["agent_id", "agent_name"], dropna=False)
+        .agg(
+            sold=("final_amount", "size"),
+            avg_value=("final_amount", "mean"),
+            total_value=("final_amount", "sum"),
+            avg_days=("cycle_days", "mean"),
+        )
+        .reset_index()
+    )
+    grouped[["avg_value", "total_value"]] = grouped[["avg_value", "total_value"]].round(0)
+    grouped["avg_days"] = grouped["avg_days"].round(1)
+    grouped = grouped.sort_values(
+        by=["sold", "avg_value", "avg_days"],
+        ascending=[False, False, True],
+    ).head(top)
+    return grouped.to_dict(orient="records")
+
+
+def monthly_revenue_chart(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Transforme la sortie ``TransactionRepository.monthly_revenue`` en
+    structure prête pour un line-chart SVG. Les mois manquants sont
+    complétés à zéro pour que la courbe couvre l'année entière.
+    """
+    df = pd.DataFrame(rows)
+    months = list(range(1, 13))
+    labels = ["jan", "fév", "mar", "avr", "mai", "jui", "jul", "aoû", "sep", "oct", "nov", "déc"]
+    if df.empty:
+        return {"labels": labels, "totals": [0] * 12, "counts": [0] * 12}
+
+    df = df.set_index("month")
+    totals = [int(float(df.loc[m, "total"])) if m in df.index else 0 for m in months]
+    counts = [int(df.loc[m, "nb"]) if m in df.index else 0 for m in months]
+    return {"labels": labels, "totals": totals, "counts": counts}
+
+
+def sales_velocity(transactions: list[dict[str, Any]]) -> dict[str, Any]:
+    """Calcule la vélocité de vente moyenne (jours offre→signature) par
+    type de bien. Retour : ``{"apartment": 78.3, "house": 92.1, ...}``.
+    """
+    df = pd.DataFrame(transactions)
+    if df.empty:
+        return {}
+    df = df[df["status"] == "signed"].copy()
+    if df.empty:
+        return {}
+    df["offer_date"] = pd.to_datetime(df["offer_date"], errors="coerce")
+    df["signed_date"] = pd.to_datetime(df["signed_date"], errors="coerce")
+    df["cycle_days"] = (df["signed_date"] - df["offer_date"]).dt.days
+    df = df.dropna(subset=["cycle_days"])
+    if df.empty or "property_type" not in df.columns:
+        return {}
+    avg = df.groupby("property_type")["cycle_days"].mean().round(0)
+    return {str(k): int(v) for k, v in avg.items()}
+
+
+def trending_properties(rows: list[dict[str, Any]], days: int = 30, top: int = 5) -> list[dict[str, Any]]:
+    """Top ``top`` biens créés ces ``days`` derniers jours, classés par vues.
+
+    "Trending" = biens récents qui captent beaucoup d'attention, pas juste
+    les biens les plus vus historiquement.
+    """
+    df = pd.DataFrame(rows)
+    if df.empty or "created_at" not in df.columns:
+        return []
+    df["created_at"] = pd.to_datetime(df["created_at"], errors="coerce")
+    cutoff = utcnow() - timedelta(days=days)
+    recent = df[df["created_at"] >= cutoff].copy()
+    if recent.empty:
+        return []
+    recent = recent.sort_values("views_count", ascending=False).head(top)
+    cols = ["id", "title", "city", "price", "views_count", "type"]
+    cols = [c for c in cols if c in recent.columns]
+    return recent[cols].to_dict(orient="records")

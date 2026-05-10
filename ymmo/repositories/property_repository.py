@@ -210,16 +210,97 @@ class PropertyRepository:
     @staticmethod
     def all_for_dataframe() -> list[dict[str, Any]]:
         """Export brut pour pandas. On garde la requête en SQL natif
-        pour pouvoir réutiliser ce flux côté reporting / data team."""
+        pour pouvoir réutiliser ce flux côté reporting / data team.
+
+        Inclut latitude/longitude pour la carte interactive et created_at
+        pour les analyses temporelles (tendance prix sur 6 mois, etc.).
+        """
         sql = text(
             """
             SELECT p.id, p.title, p.type, p.status, p.price, p.surface,
                    p.rooms, p.bedrooms, p.bathrooms, p.has_parking,
                    p.has_garden, p.has_balcony, p.energy_class,
                    p.year_built, p.city, p.postal_code, p.views_count,
-                   p.created_at, a.name AS agency_name
+                   p.latitude, p.longitude, p.created_at,
+                   a.name AS agency_name
             FROM properties p
             JOIN agencies a ON a.id = p.agency_id
             """
         )
         return [dict(row._mapping) for row in db.session.execute(sql)]
+
+    @staticmethod
+    def comparable_stats(city: str, ptype: str) -> dict[str, Any] | None:
+        """Statistiques d'un segment (ville + type) : prix moyen au m²,
+        écart-type, taille de l'échantillon. Sert à la prédiction de
+        vélocité de vente : un bien aligné sur la moyenne se vend plus vite.
+        """
+        sql = text(
+            """
+            SELECT COUNT(*)                                  AS nb,
+                   ROUND(AVG(p.price * 1.0 / p.surface), 2)  AS avg_price_sqm,
+                   ROUND(AVG(p.price), 2)                    AS avg_price
+            FROM properties p
+            WHERE p.surface > 0
+              AND p.city = :city
+              AND p.type = :ptype
+              AND p.status IN ('available', 'sold', 'under_offer')
+            """
+        )
+        row = db.session.execute(sql, {"city": city, "ptype": ptype}).first()
+        return dict(row._mapping) if row and row._mapping["nb"] else None
+
+    @staticmethod
+    def list_for_agent_paginated(
+        agent_id: int, page: int = 1, per_page: int = 10, query: str | None = None
+    ) -> tuple[list[Property], int]:
+        """Liste paginée des biens d'un agent, avec recherche optionnelle."""
+        where = ["agent_id = :aid"]
+        params: dict[str, Any] = {"aid": agent_id}
+        if query:
+            where.append("(LOWER(title) LIKE :q OR LOWER(city) LIKE :q)")
+            params["q"] = f"%{query.lower()}%"
+        where_sql = " AND ".join(where)
+
+        total = db.session.execute(
+            text(f"SELECT COUNT(*) FROM properties WHERE {where_sql}"), params
+        ).scalar_one()
+
+        offset = max(0, (page - 1) * per_page)
+        params["limit"] = per_page
+        params["offset"] = offset
+        ids = [
+            row[0]
+            for row in db.session.execute(
+                text(
+                    f"SELECT id FROM properties WHERE {where_sql} "
+                    f"ORDER BY updated_at DESC LIMIT :limit OFFSET :offset"
+                ),
+                params,
+            )
+        ]
+        if not ids:
+            return [], total
+        items = db.session.scalars(select(Property).where(Property.id.in_(ids))).all()
+        items = sorted(items, key=lambda p: ids.index(p.id))
+        return list(items), total
+
+    @staticmethod
+    def bulk_update_status(property_ids: list[int], new_status: str, agent_id: int | None = None) -> int:
+        """Mise à jour groupée du statut. Si ``agent_id`` est fourni,
+        n'autorise la mise à jour que sur les biens de cet agent (sécurité).
+        """
+        if not property_ids:
+            return 0
+        params: dict[str, Any] = {"st": new_status}
+        # Bind dynamique pour la liste d'IDs (impossible en pur :param IN).
+        ph = ",".join(f":id_{i}" for i in range(len(property_ids)))
+        for i, pid in enumerate(property_ids):
+            params[f"id_{i}"] = pid
+        clause = f"UPDATE properties SET status = :st WHERE id IN ({ph})"
+        if agent_id is not None:
+            params["aid"] = agent_id
+            clause += " AND agent_id = :aid"
+        result = db.session.execute(text(clause), params)
+        db.session.commit()
+        return result.rowcount or 0
