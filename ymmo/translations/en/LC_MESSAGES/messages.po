@@ -80,6 +80,12 @@ msgstr "View property:"
 msgid "Photo à venir"
 msgstr "Photo coming soon"
 
+msgid "Prix atypique vs marché local"
+msgstr "Atypical price vs. local market"
+
+msgid "Prix atypique"
+msgstr "Atypical price"
+
 msgid "pièces"
 msgstr "rooms"
 
@@ -95,6 +101,9 @@ msgstr "Parking"
 msgid "Jardin"
 msgstr "Garden"
 
+msgid "Comparer"
+msgstr "Compare"
+
 msgid "Pagination"
 msgstr "Pagination"
 
@@ -103,6 +112,9 @@ msgstr "Previous"
 
 msgid "Suivant"
 msgstr "Next"
+
+msgid "Graphique linéaire"
+msgstr "Line chart"
 
 msgid "Ymmo, plateforme immobilière pour acheter et vendre vos biens en France."
 msgstr "Ymmo, real estate platform to buy and sell your properties in France."
@@ -146,6 +158,12 @@ msgstr "Agent area"
 msgid "Mon espace"
 msgstr "My area"
 
+msgid "%(n)d nouveaux biens"
+msgstr "%(n)d new properties"
+
+msgid "Voir la sélection à comparer"
+msgstr "View comparison selection"
+
 msgid "Changer de thème"
 msgstr "Switch theme"
 
@@ -160,6 +178,12 @@ msgstr "Log in"
 
 msgid "S'inscrire"
 msgstr "Sign up"
+
+msgid "Sélection à comparer"
+msgstr "Comparison selection"
+
+msgid "Vider"
+msgstr "Clear"
 
 msgid "Explorer"
 msgstr "Explore"
@@ -176,6 +200,9 @@ msgstr "Network"
 msgid "Nos agences"
 msgstr "Our agencies"
 
+msgid "Statut"
+msgstr "Status"
+
 msgid "Haut de page"
 msgstr "Top of page"
 
@@ -191,9 +218,6 @@ msgstr "All rights reserved."
 msgid "Aix-en-Provence · 12 agences · France"
 msgstr "Aix-en-Provence · 12 agencies · France"
 
-msgid "Réseau d'agences indépendantes, basé à Aix-en-Provence depuis 2026. Achat, vente, estimation."
-msgstr "An independent network of agencies, based in Aix-en-Provence since 2026. Buy, sell, estimate."
-
 msgid "Administration — Ymmo"
 msgstr "Administration — Ymmo"
 
@@ -202,6 +226,12 @@ msgstr "Administration"
 
 msgid "Console d'administration."
 msgstr "Admin console."
+
+msgid "Export transactions (CSV)"
+msgstr "Export transactions (CSV)"
+
+msgid "Export biens (CSV)"
+msgstr "Export properties (CSV)"
 
 msgid "Utilisateurs"
 msgstr "Users"
@@ -212,11 +242,56 @@ msgstr "Transactions"
 msgid "Signées"
 msgstr "Signed"
 
+msgid "Performance"
+msgstr "Performance"
+
+msgid "Classement des agents."
+msgstr "Agent ranking."
+
+msgid "Tri : ventes signées DESC, panier moyen DESC, durée du cycle ASC."
+msgstr "Sort: signed deals DESC, avg deal DESC, sales cycle ASC."
+
+msgid "Agent"
+msgstr "Agent"
+
+msgid "Ventes"
+msgstr "Sales"
+
+msgid "Panier moyen"
+msgstr "Avg. deal"
+
+msgid "CA total"
+msgstr "Total revenue"
+
+msgid "Cycle moyen"
+msgstr "Avg. cycle"
+
+msgid "j"
+msgstr "d"
+
+msgid "Pas encore assez de transactions signées pour calculer un classement."
+msgstr "Not enough signed transactions yet to compute a ranking."
+
 msgid "Comptes"
 msgstr "Accounts"
 
 msgid "Utilisateurs."
 msgstr "Users."
+
+msgid "Recherche par nom ou email…"
+msgstr "Search by name or email…"
+
+msgid "Filtrer par rôle"
+msgstr "Filter by role"
+
+msgid "Tous les rôles"
+msgstr "All roles"
+
+msgid "Filtrer"
+msgstr "Filter"
+
+msgid "Réinitialiser"
+msgstr "Reset"
 
 msgid "Nom"
 msgstr "Last name"
@@ -229,9 +304,6 @@ msgstr "Role"
 
 msgid "Agence"
 msgstr "Agency"
-
-msgid "Statut"
-msgstr "Status"
 
 msgid "Actions"
 msgstr "Actions"
@@ -278,11 +350,62 @@ msgstr "Market overview."
 msgid "Tableau de bord complet"
 msgstr "Full dashboard"
 
+msgid "Calendrier des visites — Ymmo"
+msgstr "Visits calendar — Ymmo"
+
+msgid "Lun"
+msgstr "Mon"
+
+msgid "Mar"
+msgstr "Tue"
+
+msgid "Mer"
+msgstr "Wed"
+
+msgid "Jeu"
+msgstr "Thu"
+
+msgid "Ven"
+msgstr "Fri"
+
+msgid "Sam"
+msgstr "Sat"
+
+msgid "Dim"
+msgstr "Sun"
+
+msgid "Calendrier des visites."
+msgstr "Visits calendar."
+
+msgid "Semaine du %(d)s"
+msgstr "Week of %(d)s"
+
+msgid "Semaine précédente"
+msgstr "Previous week"
+
+msgid "Aujourd'hui"
+msgstr "Today"
+
+msgid "Semaine suivante"
+msgstr "Next week"
+
+msgid "Retour au tableau de bord"
+msgstr "Back to dashboard"
+
+msgid "Vue hebdomadaire des visites"
+msgstr "Weekly visits overview"
+
 msgid "Espace agent — Ymmo"
 msgstr "Agent area — Ymmo"
 
 msgid "Bienvenue, %(name)s."
 msgstr "Welcome, %(name)s."
+
+msgid "Calendrier"
+msgstr "Calendar"
+
+msgid "Export CSV"
+msgstr "Export CSV"
 
 msgid "Ajouter un bien"
 msgstr "Add a property"
@@ -302,11 +425,35 @@ msgstr "Network signed deals"
 msgid "Panier moyen réseau"
 msgstr "Network avg. deal"
 
+msgid "Annonces hors marché"
+msgstr "Off-market listings"
+
+msgid "Performance réseau"
+msgstr "Network performance"
+
+msgid "CA mensuel signé."
+msgstr "Monthly signed revenue."
+
+msgid "CA signé"
+msgstr "Signed revenue"
+
+msgid "Aucune vente signée enregistrée cette année."
+msgstr "No signed sale recorded this year."
+
 msgid "Portefeuille"
 msgstr "Portfolio"
 
 msgid "Mes biens."
 msgstr "My properties."
+
+msgid "Recherche par titre ou ville…"
+msgstr "Search by title or city…"
+
+msgid "Tout afficher"
+msgstr "Show all"
+
+msgid "Tout sélectionner"
+msgstr "Select all"
 
 msgid "Titre"
 msgstr "Title"
@@ -320,6 +467,12 @@ msgstr "Price"
 msgid "Vues"
 msgstr "Views"
 
+msgid "Favoris"
+msgstr "Favorites"
+
+msgid "Prix > 2 écarts-types vs moyenne ville/type"
+msgstr "Price > 2σ vs. city/type average"
+
 msgid "Éditer"
 msgstr "Edit"
 
@@ -328,6 +481,15 @@ msgstr "Permanently delete this property?"
 
 msgid "Supprimer"
 msgstr "Delete"
+
+msgid "Action groupée — passer en :"
+msgstr "Bulk action — switch to:"
+
+msgid "Appliquer ce statut aux biens sélectionnés ?"
+msgstr "Apply this status to the selected properties?"
+
+msgid "Appliquer"
+msgstr "Apply"
 
 msgid "Aucun bien dans votre portefeuille pour le moment."
 msgstr "No property in your portfolio yet."
@@ -340,6 +502,9 @@ msgstr "Requests"
 
 msgid "Demandes de visite."
 msgstr "Visit requests."
+
+msgid "Vue calendrier"
+msgstr "Calendar view"
 
 msgid "Bien"
 msgstr "Property"
@@ -383,6 +548,12 @@ msgstr "Sign"
 msgid "Aucune transaction."
 msgstr "No transaction."
 
+msgid "Clients ayant mis ce bien en favori."
+msgstr "Customers who favorited this property."
+
+msgid "Aucun client n'a encore ajouté ce bien à ses favoris."
+msgstr "No customer has favorited this property yet."
+
 msgid "Modifier"
 msgstr "Edit"
 
@@ -410,12 +581,6 @@ msgstr "Sign in — Ymmo"
 msgid "Bon retour parmi nous."
 msgstr "Welcome back."
 
-msgid "Retrouvez vos favoris, vos demandes de visite et le suivi de vos transactions."
-msgstr "Find your favorites, visit requests and transaction follow-ups."
-
-msgid "On a trouvé notre maison en moins de trois semaines, conseillers vraiment à l'écoute."
-msgstr "Found our house in less than three weeks, advisors who actually listened."
-
 msgid "Camille D., cliente Aix-en-Provence"
 msgstr "Camille D., customer in Aix-en-Provence"
 
@@ -436,9 +601,6 @@ msgstr "Sign up — Ymmo"
 
 msgid "Rejoignez le réseau Ymmo."
 msgstr "Join the Ymmo network."
-
-msgid "Sauvegardez vos coups de cœur, demandez des visites en deux clics, recevez nos nouveautés."
-msgstr "Save your favorites, request visits in two clicks, hear about our new listings."
 
 msgid "Favoris synchronisés sur tous vos appareils."
 msgstr "Favorites synced across all your devices."
@@ -461,6 +623,45 @@ msgstr "Already registered?"
 msgid "Connectez-vous"
 msgstr "Sign in"
 
+msgid "Mes alertes"
+msgstr "My alerts"
+
+msgid "Alertes"
+msgstr "Alerts"
+
+msgid "Mes recherches sauvegardées."
+msgstr "My saved searches."
+
+msgid "ex: T3 Lyon 2e ≤ 350k€"
+msgstr "e.g. 3-room Lyon 2nd ≤ 350k€"
+
+msgid "Indifférent"
+msgstr "Any"
+
+msgid "Créer l'alerte"
+msgstr "Create alert"
+
+msgid "Mes alertes actives"
+msgstr "My active alerts"
+
+msgid "nouveaux"
+msgstr "new"
+
+msgid "Toutes villes"
+msgstr "All cities"
+
+msgid "Tous types"
+msgstr "All types"
+
+msgid "Voir les biens"
+msgstr "Browse properties"
+
+msgid "Supprimer cette alerte ?"
+msgstr "Delete this alert?"
+
+msgid "Aucune alerte. Créez-en une à gauche pour démarrer."
+msgstr "No alert. Create one on the left to get started."
+
 msgid "Contacter l'agence"
 msgstr "Contact the agency"
 
@@ -479,6 +680,15 @@ msgstr "Hello, %(name)s."
 msgid "Retrouvez vos favoris, vos demandes et vos transactions."
 msgstr "Find your favorites, requests and transactions."
 
+msgid "Créer une alerte"
+msgstr "Create an alert"
+
+msgid "Voir les biens correspondants"
+msgstr "See matching properties"
+
+msgid "Aucune alerte."
+msgstr "No alert."
+
 msgid "Sélection"
 msgstr "Selection"
 
@@ -490,9 +700,6 @@ msgstr "No favorite yet."
 
 msgid "Parcourez les biens et cliquez sur ♥ pour les retrouver ici."
 msgstr "Browse the catalogue and tap ♥ to keep them here."
-
-msgid "Voir les biens"
-msgstr "Browse properties"
 
 msgid "Visites"
 msgstr "Visits"
@@ -506,8 +713,17 @@ msgstr "No visit request recorded."
 msgid "Achat"
 msgstr "Purchase"
 
-msgid "Date"
-msgstr "Date"
+msgid "Avancement de mes démarches."
+msgstr "Progress of my purchases."
+
+msgid "Offre :"
+msgstr "Offer:"
+
+msgid "Date :"
+msgstr "Date:"
+
+msgid "Étapes de la démarche"
+msgstr "Process steps"
 
 msgid "Vous n'avez pas encore de transaction en cours."
 msgstr "You have no transaction in progress."
@@ -542,6 +758,12 @@ msgstr "Page not found."
 msgid "La page demandée n'existe pas ou n'est plus disponible."
 msgstr "The requested page doesn't exist or is no longer available."
 
+msgid "Trop de requêtes"
+msgstr "Too many requests"
+
+msgid "Trop de requêtes."
+msgstr "Too many requests."
+
 msgid "Erreur serveur"
 msgstr "Server error"
 
@@ -557,35 +779,23 @@ msgstr "Our agencies — Ymmo"
 msgid "Notre réseau d'agences."
 msgstr "Our agency network."
 
-msgid "Le siège social Ymmo est implanté à Aix-en-Provence et notre réseau couvre l'ensemble du territoire."
-msgstr "Ymmo's head office is in Aix-en-Provence and our network covers the entire country."
-
 msgid "Siège"
 msgstr "HQ"
 
 msgid "Écrire"
 msgstr "Write"
 
-msgid "Fil dariane"
-msgstr "Breadcrumb"
+msgid "Comparer des biens"
+msgstr "Compare properties"
 
-msgid "Accueil"
-msgstr "Home"
+msgid "Outil"
+msgstr "Tool"
 
-msgid "Photo principale du bien "
-msgstr "Main photo of "
+msgid "Comparer les biens."
+msgstr "Compare properties."
 
-msgid "Le bien"
-msgstr "The property"
-
-msgid "Description"
-msgstr "Description"
-
-msgid "Description non renseignée."
-msgstr "No description provided."
-
-msgid "À l'intérieur"
-msgstr "Inside"
+msgid "Prix/m²"
+msgstr "Price/sqm"
 
 msgid "Surface"
 msgstr "Surface"
@@ -608,17 +818,56 @@ msgstr "Year"
 msgid "Classe énergie"
 msgstr "Energy class"
 
+msgid "Balcon"
+msgstr "Balcony"
+
+msgid "Aucun bien à comparer."
+msgstr "No property to compare."
+
+msgid "Voir le catalogue"
+msgstr "Open catalogue"
+
+msgid "Fil dariane"
+msgstr "Breadcrumb"
+
+msgid "Accueil"
+msgstr "Home"
+
+msgid "Photo principale du bien "
+msgstr "Main photo of "
+
+msgid "Le bien"
+msgstr "The property"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Description non renseignée."
+msgstr "No description provided."
+
+msgid "À l'intérieur"
+msgstr "Inside"
+
 msgid "Oui"
 msgstr "Yes"
 
 msgid "Non"
 msgstr "No"
 
-msgid "Balcon"
-msgstr "Balcony"
+msgid "Prédiction de vente"
+msgstr "Sales prediction"
+
+msgid "jours"
+msgstr "days"
+
+msgid "Délai estimé pour vendre ce bien."
+msgstr "Estimated time to sell this property."
 
 msgid "Localisation"
 msgstr "Location"
+
+msgid "Carte de localisation du bien"
+msgstr "Property location map"
 
 msgid "L'adresse complète est partagée après contact, en accord avec le vendeur."
 msgstr "Full address is shared after contact, with the seller's consent."
@@ -644,9 +893,6 @@ msgstr "To request a visit or contact the agency:"
 msgid "Estimer un bien — Ymmo"
 msgstr "Estimate a property — Ymmo"
 
-msgid "Outil"
-msgstr "Tool"
-
 msgid "Modèle interne"
 msgstr "Internal model"
 
@@ -671,9 +917,6 @@ msgstr "Waiting for input."
 msgid "Renseignez les caractéristiques du bien pour obtenir une estimation."
 msgstr "Fill in the property details to get an estimate."
 
-msgid "Notre algorithme s'appuie sur une régression linéaire entraînée sur l'ensemble des biens du portefeuille Ymmo."
-msgstr "Our algorithm relies on a linear regression trained on the full Ymmo portfolio."
-
 msgid "Ymmo — acheter et vendre votre bien immobilier"
 msgstr "Ymmo — buy and sell your real estate property"
 
@@ -682,9 +925,6 @@ msgstr "Ymmo group platform"
 
 msgid "qui vous ressemble."
 msgstr "that suits you."
-
-msgid "Douze agences à travers la France, des centaines de biens choisis avec soin, et un outil d'estimation propulsé par notre algorithme maison."
-msgstr "Twelve agencies across France, hundreds of carefully selected properties, and a price estimator powered by our in-house algorithm."
 
 msgid "Recherche rapide"
 msgstr "Quick search"
@@ -703,9 +943,6 @@ msgstr "All cities"
 
 msgid "Type de bien"
 msgstr "Property type"
-
-msgid "Tous types"
-msgstr "All types"
 
 msgid "Chercher"
 msgstr "Search"
@@ -755,20 +992,11 @@ msgstr "A different take on real estate."
 msgid "Conseillers de proximité"
 msgstr "Neighbourhood advisors"
 
-msgid "Chaque agence est gérée comme une boutique : on connaît le quartier, on connaît les gens."
-msgstr "Each agency is run like a boutique: we know the neighbourhood, we know the people."
-
 msgid "Estimation transparente"
 msgstr "Transparent estimation"
 
-msgid "Notre estimateur explique ce qu'il fait : un modèle entraîné sur notre portefeuille, avec un score de confiance."
-msgstr "Our estimator explains itself: a model trained on our portfolio, with a confidence score."
-
 msgid "Données ouvertes"
 msgstr "Open data"
-
-msgid "Le tableau de bord du marché est public. Pas de boîte noire : vous voyez ce qu'on voit."
-msgstr "The market dashboard is public. No black box: you see what we see."
 
 msgid "Recherche de biens — Ymmo"
 msgstr "Property search — Ymmo"
@@ -845,11 +1073,32 @@ msgstr "Signed deeds"
 msgid "Panier moyen signé"
 msgstr "Average signed deal"
 
-msgid "j"
-msgstr "d"
-
 msgid "Durée moyenne du cycle"
 msgstr "Average sales cycle"
+
+msgid "Rapport de ventes"
+msgstr "Sales report"
+
+msgid "Chiffre d'affaires signé sur l'année."
+msgstr "Signed revenue across the year."
+
+msgid "CA signé (€)"
+msgstr "Signed revenue (€)"
+
+msgid "Cumul annuel"
+msgstr "Yearly total"
+
+msgid "Ventes signées dans l'année"
+msgstr "Signed sales this year"
+
+msgid "Évolution"
+msgstr "Trend"
+
+msgid "Tendance du prix au m² sur 6 mois."
+msgstr "Price/sqm trend over 6 months."
+
+msgid "Pas assez de données récentes pour tracer une tendance."
+msgstr "Not enough recent data to plot a trend."
 
 msgid "Géographie"
 msgstr "Geography"
@@ -857,14 +1106,20 @@ msgstr "Geography"
 msgid "Prix moyen au m² par ville."
 msgstr "Average price per sqm by city."
 
+msgid "Tendance du moment"
+msgstr "Trending now"
+
+msgid "Biens populaires (30 derniers jours)."
+msgstr "Popular listings (last 30 days)."
+
+msgid "Aucune mise en ligne récente."
+msgstr "No recent listing."
+
 msgid "Score d'opportunité"
 msgstr "Opportunity score"
 
 msgid "Meilleures zones où investir."
 msgstr "Best zones to invest."
-
-msgid "Score combinant la demande (vues) et le coût au m². Plus le score est élevé, plus la zone est attractive à prix maîtrisé."
-msgstr "Score combining demand (views) and cost per sqm. The higher the score, the more attractive the zone at controlled price."
 
 msgid "Top zones où investir"
 msgstr "Top investment zones"
@@ -872,11 +1127,17 @@ msgstr "Top investment zones"
 msgid "Prix moyen"
 msgstr "Average price"
 
-msgid "Prix/m²"
-msgstr "Price/sqm"
-
 msgid "Score"
 msgstr "Score"
+
+msgid "Vélocité"
+msgstr "Velocity"
+
+msgid "Délai moyen de vente par type."
+msgstr "Average sales time by type."
+
+msgid "Pas encore assez de transactions signées pour calculer la vélocité."
+msgstr "Not enough signed transactions yet to compute velocity."
 
 msgid "Typologie"
 msgstr "Typology"
