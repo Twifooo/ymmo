@@ -2,24 +2,33 @@
 
 from __future__ import annotations
 
-from flask import Blueprint, abort, make_response, redirect, render_template, request
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    make_response,
+    redirect,
+    render_template,
+    request,
+)
 
 from ..forms import PriceEstimationForm, PropertySearchForm
 from ..models import PropertyType
 from ..repositories import PropertyRepository
 from ..repositories.property_repository import PropertySearchCriteria
-from ..services import AnalyticsService, PropertyService
+from ..services import PropertyService
 
 public_bp = Blueprint("public", __name__)
-analytics_service = AnalyticsService()
+
+
+def _analytics():
+    return current_app.extensions["analytics"]
 
 
 @public_bp.route("/")
 def home():
     featured = PropertyRepository.top_viewed(limit=6)
     cities = PropertyRepository.avg_price_per_city(limit=6)
-    # On garde la barre de recherche du hero auto-suffisante : on lui passe
-    # la liste des villes pour le <select>, et un récap chiffré pour l'aside.
     nav_cities = sorted({c["city"] for c in PropertyRepository.avg_price_per_city(limit=50)})
     by_status = PropertyRepository.count_by_status()
     stats = {
@@ -49,8 +58,11 @@ def list_properties():
         max_price=float(form.max_price.data) if form.max_price.data is not None else None,
         min_surface=float(form.min_surface.data) if form.min_surface.data is not None else None,
         min_rooms=int(form.min_rooms.data) if form.min_rooms.data is not None else None,
-        has_parking=bool(form.has_parking.data),
-        has_garden=bool(form.has_garden.data),
+        # `True` quand l'utilisateur a coché la case ; `None` quand il ne l'a
+        # pas cochée. Avant, on envoyait `False` (= "n'a pas de parking"), ce
+        # qui filtrait à tort les résultats.
+        has_parking=True if form.has_parking.data else None,
+        has_garden=True if form.has_garden.data else None,
         sort=form.sort.data or "recent",
         page=page,
     )
@@ -74,7 +86,31 @@ def property_detail(property_id: int):
         prop = PropertyService.view(property_id)
     except Exception:
         abort(404)
-    return render_template("public/detail.html", prop=prop)
+    velocity = _analytics().estimate_days_to_sell(prop) if prop else None
+    return render_template("public/detail.html", prop=prop, velocity=velocity)
+
+
+@public_bp.route("/comparer")
+def compare():
+    """Comparaison côte à côte de 2-3 biens (sélection côté client en JS).
+
+    On ne stocke rien serveur : le front lit ?ids=1,2,3, on charge depuis
+    la BDD et on rend une table comparative.
+    """
+    raw = (request.args.get("ids") or "").strip()
+    ids: list[int] = []
+    for piece in raw.split(",")[:4]:  # max 4
+        try:
+            ids.append(int(piece))
+        except ValueError:
+            continue
+    items = []
+    if ids:
+        for pid in ids:
+            p = PropertyRepository.get(pid)
+            if p:
+                items.append(p)
+    return render_template("public/compare.html", items=items)
 
 
 @public_bp.route("/estimer", methods=["GET", "POST"])
@@ -84,7 +120,7 @@ def estimate():
     error = None
     if request.method == "POST" and form.validate():
         try:
-            result = analytics_service.predict_price(
+            result = _analytics().predict_price(
                 {
                     "type": form.type.data,
                     "city": form.city.data,
@@ -104,8 +140,7 @@ def estimate():
 
 @public_bp.route("/marche")
 def market():
-    dashboard = analytics_service.dashboard()
-    return render_template("public/market.html", dashboard=dashboard)
+    return render_template("public/market.html", dashboard=_analytics().dashboard())
 
 
 @public_bp.route("/agences")

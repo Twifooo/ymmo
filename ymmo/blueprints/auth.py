@@ -1,10 +1,16 @@
-"""Authentification : connexion, inscription, déconnexion."""
+"""Authentification : connexion, inscription, déconnexion.
+
+Limites anti-bruteforce via Flask-Limiter :
+- 5 tentatives de connexion par minute, par IP,
+- 3 inscriptions par minute, par IP.
+"""
 
 from __future__ import annotations
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
+from ..extensions import limiter
 from ..forms import LoginForm, RegisterForm
 from ..services import AuthError, AuthService
 
@@ -12,6 +18,7 @@ auth_bp = Blueprint("auth", __name__)
 
 
 @auth_bp.route("/connexion", methods=["GET", "POST"])
+@limiter.limit("5 per minute", methods=["POST"])
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("public.home"))
@@ -32,6 +39,7 @@ def login():
 
 
 @auth_bp.route("/inscription", methods=["GET", "POST"])
+@limiter.limit("3 per minute", methods=["POST"])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for("public.home"))

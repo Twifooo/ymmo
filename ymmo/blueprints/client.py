@@ -1,4 +1,4 @@
-"""Espace client : favoris, demandes de visite, transactions, messages."""
+"""Espace client : favoris, demandes de visite, transactions, messages, alertes."""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ from flask_login import current_user, login_required
 
 from ..decorators import role_required
 from ..extensions import db
-from ..forms import ContactAgencyForm, VisitRequestForm
+from ..forms import ContactAgencyForm, SavedSearchForm, VisitRequestForm
 from ..models import Message, UserRole
 from ..repositories import PropertyRepository, TransactionRepository
-from ..services import PropertyError, PropertyService
+from ..services import PropertyError, PropertyService, SavedSearchService
 
 client_bp = Blueprint("client", __name__)
 
@@ -27,11 +27,15 @@ def dashboard():
     favorites = current_user.favorites
     visits = current_user.visit_requests
     transactions = TransactionRepository.list_for_buyer(current_user.id)
+    saved_searches = SavedSearchService.details(current_user)
+    # Une fois affichées, on remet le compteur d'alertes à 0.
+    SavedSearchService.mark_seen(current_user)
     return render_template(
         "client/dashboard.html",
         favorites=favorites,
         visits=visits,
         transactions=transactions,
+        saved_searches=saved_searches,
     )
 
 
@@ -87,3 +91,37 @@ def contact_agency(property_id: int):
         return redirect(url_for("public.property_detail", property_id=prop.id))
     form.subject.data = form.subject.data or f"Demande d'information : {prop.title}"
     return render_template("client/contact.html", form=form, prop=prop)
+
+
+# -- Recherches sauvegardées / alertes --------------------------------
+
+@client_bp.route("/alertes", methods=["GET", "POST"])
+@role_required(UserRole.CLIENT, UserRole.ADMIN)
+def alerts():
+    form = SavedSearchForm()
+    if form.validate_on_submit():
+        SavedSearchService.create(
+            current_user,
+            label=form.label.data,
+            city=form.city.data,
+            property_type=form.property_type.data,
+            max_price=form.max_price.data,
+            min_surface=float(form.min_surface.data) if form.min_surface.data is not None else None,
+        )
+        flash("Alerte enregistrée. Vous serez notifié(e) à votre prochaine visite.", "success")
+        return redirect(url_for("client.alerts"))
+    return render_template(
+        "client/alerts.html",
+        form=form,
+        searches=SavedSearchService.details(current_user),
+    )
+
+
+@client_bp.route("/alertes/<int:search_id>/supprimer", methods=["POST"])
+@role_required(UserRole.CLIENT, UserRole.ADMIN)
+def delete_alert(search_id: int):
+    if SavedSearchService.delete(current_user, search_id):
+        flash("Alerte supprimée.", "info")
+    else:
+        flash("Alerte introuvable.", "error")
+    return redirect(url_for("client.alerts"))
