@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import line_chart, pagination %}
 {% block title %}{{ _("Espace agent — Ymmo") }}{% endblock %}
 
 {% block content %}
@@ -10,61 +11,136 @@
       <p class="muted" style="margin: var(--s-2) 0 0;">{{ current_user.agency.name }} · {{ current_user.agency.city }}</p>
     {% endif %}
   </div>
-  <a class="btn btn--primary" href="{{ url_for('agent.create_property') }}">
-    + {{ _("Ajouter un bien") }}
-  </a>
+  <div class="row" style="gap: var(--s-2);">
+    <a class="btn btn--quiet" href="{{ url_for('agent.calendar') }}">📅 {{ _("Calendrier") }}</a>
+    <a class="btn btn--quiet" href="{{ url_for('agent.export_properties_csv') }}">⤓ {{ _("Export CSV") }}</a>
+    <a class="btn btn--primary" href="{{ url_for('agent.create_property') }}">+ {{ _("Ajouter un bien") }}</a>
+  </div>
 </header>
 
 {% set kpis = dashboard.kpis %}
 <section class="kpis" aria-label="{{ _('Indicateurs') }}">
-  <div class="kpi"><div class="kpi__num">{{ properties | length }}</div><div class="kpi__label">{{ _("Mes biens") }}</div></div>
+  <div class="kpi"><div class="kpi__num">{{ properties_total }}</div><div class="kpi__label">{{ _("Mes biens") }}</div></div>
   <div class="kpi"><div class="kpi__num">{{ visits | selectattr('status.value', 'equalto', 'pending') | list | length }}</div><div class="kpi__label">{{ _("Visites en attente") }}</div></div>
   <div class="kpi"><div class="kpi__num">{{ kpis.signed_count or 0 }}</div><div class="kpi__label">{{ _("Ventes signées (réseau)") }}</div></div>
   <div class="kpi">
     <div class="kpi__num">{% if kpis.avg_basket %}{{ "{:,.0f}".format(kpis.avg_basket).replace(',', ' ') }} €{% else %}—{% endif %}</div>
     <div class="kpi__label">{{ _("Panier moyen réseau") }}</div>
   </div>
+  {% if anomaly_ids %}
+    <div class="kpi" style="border-color: var(--gold);">
+      <div class="kpi__num" style="color: var(--brick-deep);">⚠ {{ anomaly_ids | length }}</div>
+      <div class="kpi__label">{{ _("Annonces hors marché") }}</div>
+    </div>
+  {% endif %}
+</section>
+
+<section class="section" aria-labelledby="revenue-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">01 — {{ _("Performance réseau") }}</span>
+      <h2 id="revenue-title">{{ _("CA mensuel signé.") }}</h2>
+    </div>
+  </div>
+  {% set rev = dashboard.monthly_revenue %}
+  {% if rev.totals | sum > 0 %}
+    {{ line_chart(rev.labels, {_('CA signé'): rev.totals}, height=220) }}
+  {% else %}
+    <p class="muted">{{ _("Aucune vente signée enregistrée cette année.") }}</p>
+  {% endif %}
 </section>
 
 <section class="section" aria-labelledby="my-props-title">
   <div class="section__head">
     <div>
-      <span class="section-num">01 — {{ _("Portefeuille") }}</span>
+      <span class="section-num">02 — {{ _("Portefeuille") }}</span>
       <h2 id="my-props-title">{{ _("Mes biens.") }}</h2>
     </div>
   </div>
+
+  <form method="get" action="{{ url_for('agent.dashboard') }}" class="row" style="margin-bottom: var(--s-4); gap: var(--s-2);">
+    <input type="search" name="q" value="{{ properties_query }}" placeholder="{{ _('Recherche par titre ou ville…') }}" style="max-width: 320px;">
+    <button class="btn btn--quiet btn--small" type="submit">{{ _("Filtrer") }}</button>
+    {% if properties_query %}
+      <a class="btn btn--quiet btn--small" href="{{ url_for('agent.dashboard') }}">{{ _("Tout afficher") }}</a>
+    {% endif %}
+  </form>
+
   {% if properties %}
-    <div class="table-wrap">
-      <table class="data">
-        <thead>
-          <tr><th>{{ _("Titre") }}</th><th>{{ _("Type") }}</th><th>{{ _("Statut") }}</th><th>{{ _("Prix") }}</th><th>{{ _("Vues") }}</th><th>{{ _("Actions") }}</th></tr>
-        </thead>
-        <tbody>
-          {% for p in properties %}
+    <form method="post" action="{{ url_for('agent.bulk_update') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
             <tr>
-              <td>
-                <a href="{{ url_for('public.property_detail', property_id=p.id) }}">{{ p.title }}</a><br>
-                <small class="muted">{{ p.city }}</small>
-              </td>
-              <td>{{ p.type.label }}</td>
-              <td><span class="tag">{{ p.status.label }}</span></td>
-              <td>{{ "{:,.0f}".format(p.price).replace(',', ' ') }} €</td>
-              <td>{{ p.views_count }}</td>
-              <td>
-                <a class="btn btn--small btn--quiet" href="{{ url_for('agent.edit_property', property_id=p.id) }}">{{ _("Éditer") }}</a>
-                <form method="post" action="{{ url_for('agent.delete_property', property_id=p.id) }}" style="display: inline;">
-                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <th><input type="checkbox" data-select-all aria-label="{{ _('Tout sélectionner') }}"></th>
+              <th>{{ _("Titre") }}</th>
+              <th>{{ _("Type") }}</th>
+              <th>{{ _("Statut") }}</th>
+              <th>{{ _("Prix") }}</th>
+              <th>{{ _("Vues") }}</th>
+              <th>{{ _("Favoris") }}</th>
+              <th>{{ _("Actions") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in properties %}
+              <tr {% if p.id in anomaly_ids %}class="data__row--flagged"{% endif %}>
+                <td><input type="checkbox" name="property_ids" value="{{ p.id }}" aria-label="{{ p.title }}"></td>
+                <td>
+                  <a href="{{ url_for('public.property_detail', property_id=p.id) }}">{{ p.title }}</a><br>
+                  <small class="muted">{{ p.city }}</small>
+                  {% if p.id in anomaly_ids %}
+                    <br><span class="tag tag--warn" title="{{ _('Prix > 2 écarts-types vs moyenne ville/type') }}">⚠ {{ _("Prix atypique") }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ p.type.label }}</td>
+                <td><span class="tag">{{ p.status.label }}</span></td>
+                <td>{{ "{:,.0f}".format(p.price).replace(',', ' ') }} €</td>
+                <td>{{ p.views_count }}</td>
+                <td>
+                  {% if p.favorites %}
+                    <a href="{{ url_for('agent.property_favorites', property_id=p.id) }}">
+                      ♥ {{ p.favorites | length }}
+                    </a>
+                  {% else %}—{% endif %}
+                </td>
+                <td>
+                  <a class="btn btn--small btn--quiet" href="{{ url_for('agent.edit_property', property_id=p.id) }}">{{ _("Éditer") }}</a>
                   <button class="btn btn--small btn--danger"
-                          data-confirm="{{ _('Supprimer définitivement ce bien ?') }}">
+                          formmethod="post"
+                          formaction="{{ url_for('agent.delete_property', property_id=p.id) }}"
+                          data-confirm="{{ _('Supprimer définitivement ce bien ?') }}"
+                          name="delete_id" value="{{ p.id }}">
                     {{ _("Supprimer") }}
                   </button>
-                </form>
-              </td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row" style="margin-top: var(--s-4); gap: var(--s-2); align-items: end;">
+        <div class="form-row" style="flex: 1; max-width: 280px;">
+          <label for="bulk-status">{{ _("Action groupée — passer en :") }}</label>
+          <select name="new_status" id="bulk-status">
+            <option value="available">{{ _("Disponible") }}</option>
+            <option value="under_offer">{{ _("Sous compromis") }}</option>
+            <option value="sold">{{ _("Vendu") }}</option>
+            <option value="withdrawn">{{ _("Retiré") }}</option>
+            <option value="draft">{{ _("Brouillon") }}</option>
+          </select>
+        </div>
+        <button class="btn btn--primary btn--small" type="submit"
+                data-confirm="{{ _('Appliquer ce statut aux biens sélectionnés ?') }}">
+          {{ _("Appliquer") }}
+        </button>
+      </div>
+    </form>
+
+    {{ pagination(properties_page, properties_pages, 'agent.dashboard',
+                  {'q': properties_query}) }}
   {% else %}
     <div class="empty-state">
       <h3>{{ _("Aucun bien dans votre portefeuille pour le moment.") }}</h3>
@@ -76,9 +152,10 @@
 <section class="section" aria-labelledby="visits-title">
   <div class="section__head">
     <div>
-      <span class="section-num">02 — {{ _("Demandes") }}</span>
+      <span class="section-num">03 — {{ _("Demandes") }}</span>
       <h2 id="visits-title">{{ _("Demandes de visite.") }}</h2>
     </div>
+    <a class="btn btn--ghost btn--small" href="{{ url_for('agent.calendar') }}">📅 {{ _("Vue calendrier") }}</a>
   </div>
   {% if visits %}
     <div class="table-wrap">
@@ -113,7 +190,7 @@
 <section class="section" aria-labelledby="trans-title">
   <div class="section__head">
     <div>
-      <span class="section-num">03 — {{ _("Transactions") }}</span>
+      <span class="section-num">04 — {{ _("Transactions") }}</span>
       <h2 id="trans-title">{{ _("Mes transactions.") }}</h2>
     </div>
   </div>

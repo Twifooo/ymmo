@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_macros.html" import line_chart %}
 {% block title %}{{ _("Marché immobilier — Ymmo") }}{% endblock %}
 
 {% block content %}
@@ -10,18 +11,9 @@
 
 {% set kpis = dashboard.kpis %}
 <section class="kpis" aria-label="{{ _('Indicateurs clés') }}">
-  <div class="kpi">
-    <div class="kpi__num">{{ kpis.total_count or 0 }}</div>
-    <div class="kpi__label">{{ _("Transactions enregistrées") }}</div>
-  </div>
-  <div class="kpi">
-    <div class="kpi__num">{{ kpis.signed_count or 0 }}</div>
-    <div class="kpi__label">{{ _("Actes authentiques") }}</div>
-  </div>
-  <div class="kpi">
-    <div class="kpi__num">{{ kpis.compromise_count or 0 }}</div>
-    <div class="kpi__label">{{ _("Sous compromis") }}</div>
-  </div>
+  <div class="kpi"><div class="kpi__num">{{ kpis.total_count or 0 }}</div><div class="kpi__label">{{ _("Transactions enregistrées") }}</div></div>
+  <div class="kpi"><div class="kpi__num">{{ kpis.signed_count or 0 }}</div><div class="kpi__label">{{ _("Actes authentiques") }}</div></div>
+  <div class="kpi"><div class="kpi__num">{{ kpis.compromise_count or 0 }}</div><div class="kpi__label">{{ _("Sous compromis") }}</div></div>
   <div class="kpi">
     <div class="kpi__num">
       {% if kpis.avg_basket %}{{ "{:,.0f}".format(kpis.avg_basket).replace(',', ' ') }} €{% else %}—{% endif %}
@@ -36,10 +28,50 @@
   </div>
 </section>
 
+<section class="section" aria-labelledby="revenue-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">01 — {{ _("Rapport de ventes") }}</span>
+      <h2 id="revenue-title">{{ _("Chiffre d'affaires signé sur l'année.") }}</h2>
+    </div>
+  </div>
+  {% set rev = dashboard.monthly_revenue %}
+  {% if rev.totals | sum > 0 %}
+    {{ line_chart(rev.labels, {_('CA signé (€)'): rev.totals}, height=260, value_format='') }}
+    <div class="kpis" style="margin-top: var(--s-5);">
+      <div class="kpi">
+        <div class="kpi__num">{{ "{:,.0f}".format(rev.totals | sum).replace(',', ' ') }} €</div>
+        <div class="kpi__label">{{ _("Cumul annuel") }}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi__num">{{ rev.counts | sum }}</div>
+        <div class="kpi__label">{{ _("Ventes signées dans l'année") }}</div>
+      </div>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Aucune vente signée enregistrée cette année.") }}</p>
+  {% endif %}
+</section>
+
+<section class="section" aria-labelledby="trend-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">02 — {{ _("Évolution") }}</span>
+      <h2 id="trend-title">{{ _("Tendance du prix au m² sur 6 mois.") }}</h2>
+    </div>
+  </div>
+  {% set trend = dashboard.price_trend %}
+  {% if trend.series and trend.labels %}
+    {{ line_chart(trend.labels, trend.series, height=260, value_format=' €') }}
+  {% else %}
+    <p class="muted">{{ _("Pas assez de données récentes pour tracer une tendance.") }}</p>
+  {% endif %}
+</section>
+
 <section class="section" aria-labelledby="cities-title">
   <div class="section__head">
     <div>
-      <span class="section-num">01 — {{ _("Géographie") }}</span>
+      <span class="section-num">03 — {{ _("Géographie") }}</span>
       <h2 id="cities-title">{{ _("Prix moyen au m² par ville.") }}</h2>
     </div>
   </div>
@@ -57,10 +89,38 @@
   </div>
 </section>
 
+<section class="section" aria-labelledby="trending-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">04 — {{ _("Tendance du moment") }}</span>
+      <h2 id="trending-title">{{ _("Biens populaires (30 derniers jours).") }}</h2>
+    </div>
+  </div>
+  {% if dashboard.trending %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead><tr><th>{{ _("Bien") }}</th><th>{{ _("Ville") }}</th><th>{{ _("Prix") }}</th><th>{{ _("Vues") }}</th></tr></thead>
+        <tbody>
+          {% for t in dashboard.trending %}
+            <tr>
+              <td><a href="{{ url_for('public.property_detail', property_id=t.id) }}">{{ t.title }}</a></td>
+              <td>{{ t.city }}</td>
+              <td>{{ "{:,.0f}".format(t.price).replace(',', ' ') }} €</td>
+              <td><strong>{{ t.views_count }}</strong></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Aucune mise en ligne récente.") }}</p>
+  {% endif %}
+</section>
+
 <section class="section" aria-labelledby="zones-title">
   <div class="section__head">
     <div>
-      <span class="section-num">02 — {{ _("Score d'opportunité") }}</span>
+      <span class="section-num">05 — {{ _("Score d'opportunité") }}</span>
       <h2 id="zones-title">{{ _("Meilleures zones où investir.") }}</h2>
     </div>
   </div>
@@ -94,10 +154,38 @@
   </div>
 </section>
 
+<section class="section" aria-labelledby="velocity-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">06 — {{ _("Vélocité") }}</span>
+      <h2 id="velocity-title">{{ _("Délai moyen de vente par type.") }}</h2>
+    </div>
+  </div>
+  {% if dashboard.sales_velocity %}
+    <div class="kpis">
+      {% for ptype, days in dashboard.sales_velocity.items() %}
+        <div class="kpi">
+          <div class="kpi__num">{{ days }} <small style="font-size: .55em;">{{ _("j") }}</small></div>
+          <div class="kpi__label">
+            {%- if ptype == 'apartment' -%}{{ _("Appartement") }}
+            {%- elif ptype == 'house' -%}{{ _("Maison") }}
+            {%- elif ptype == 'land' -%}{{ _("Terrain") }}
+            {%- elif ptype == 'commercial' -%}{{ _("Local commercial") }}
+            {%- elif ptype == 'office' -%}{{ _("Bureaux") }}
+            {%- else -%}{{ ptype }}{%- endif -%}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Pas encore assez de transactions signées pour calculer la vélocité.") }}</p>
+  {% endif %}
+</section>
+
 <section class="section" aria-labelledby="types-title">
   <div class="section__head">
     <div>
-      <span class="section-num">03 — {{ _("Typologie") }}</span>
+      <span class="section-num">07 — {{ _("Typologie") }}</span>
       <h2 id="types-title">{{ _("Prix moyen par type de bien.") }}</h2>
     </div>
   </div>
@@ -128,7 +216,7 @@
 <section class="section" aria-labelledby="features-title">
   <div class="section__head">
     <div>
-      <span class="section-num">04 — {{ _("Équipements") }}</span>
+      <span class="section-num">08 — {{ _("Équipements") }}</span>
       <h2 id="features-title">{{ _("Équipements les plus présents.") }}</h2>
     </div>
   </div>
@@ -150,7 +238,7 @@
 <section class="section" aria-labelledby="dist-title">
   <div class="section__head">
     <div>
-      <span class="section-num">05 — {{ _("Distribution") }}</span>
+      <span class="section-num">09 — {{ _("Distribution") }}</span>
       <h2 id="dist-title">{{ _("Distribution des prix.") }}</h2>
     </div>
   </div>

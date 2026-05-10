@@ -2,6 +2,14 @@
 {% block title %}{{ prop.title }} — Ymmo{% endblock %}
 {% block meta_description %}{{ prop.title }} — {{ prop.surface }} m², {{ prop.city }}, {{ "{:,.0f}".format(prop.price).replace(',', ' ') }} €.{% endblock %}
 
+{% block head_extra %}
+  {# Leaflet en CDN : pas de bundler, pas de clé API. Loaded only on detail. #}
+  {% if prop.latitude and prop.longitude %}
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  {% endif %}
+{% endblock %}
+
 {% block content %}
 <nav class="crumbs" aria-label="{{ _('Fil d''ariane') }}">
   <a href="{{ url_for('public.home') }}">{{ _("Accueil") }}</a>
@@ -11,7 +19,6 @@
   <span>{{ prop.city }}</span>
 </nav>
 
-{# ---------- En-tête éditorial ---------- #}
 <header class="detail__head">
   <div>
     <span class="eyebrow">{{ prop.type.label }} · {{ prop.city }}</span>
@@ -31,10 +38,14 @@
   <div class="price-block">
     <div class="detail__price">{{ "{:,.0f}".format(prop.price).replace(',', ' ') }} €</div>
     <div class="detail__price-sub">{{ "{:,.0f}".format(prop.price_per_sqm).replace(',', ' ') }} €/m²</div>
+    <button type="button" class="btn btn--ghost btn--small compare-btn"
+            data-compare-id="{{ prop.id }}" data-compare-title="{{ prop.title }}"
+            style="margin-top: var(--s-3);">
+      ⊕ {{ _("Comparer") }}
+    </button>
   </div>
 </header>
 
-{# ---------- Galerie type Airbnb (1 grande + 4 petites) ---------- #}
 {% if prop.images %}
   <div class="gallery">
     <a href="{{ prop.images[0].url }}" target="_blank" rel="noopener">
@@ -81,6 +92,26 @@
       </ul>
     </div>
 
+    {% if velocity %}
+      <div class="stack surface" style="background: var(--paper-2);">
+        <span class="eyebrow">{{ _("Prédiction de vente") }}</span>
+        <p style="font-family: var(--font-display); font-size: 2.4rem; line-height: 1; margin: 0;">
+          ≈ {{ velocity.days }} <small style="font-size: .45em;">{{ _("jours") }}</small>
+        </p>
+        <p class="muted" style="margin: 0;">
+          {{ _("Délai estimé pour vendre ce bien.") }}
+          {% if velocity.delta_pct > 0 %}
+            <span class="tag tag--warn">+{{ velocity.delta_pct }} % vs marché local</span>
+          {% elif velocity.delta_pct < 0 %}
+            <span class="tag tag--success">{{ velocity.delta_pct }} % vs marché local</span>
+          {% endif %}
+        </p>
+        <p class="muted" style="font-size: .82rem; margin: 0;">
+          {{ _("Modèle basé sur la durée moyenne du cycle de vente pour ce type de bien et l'écart de prix au m² local (échantillon : %(n)d biens comparables).", n=velocity.comparable_count) }}
+        </p>
+      </div>
+    {% endif %}
+
     <div class="stack">
       <span class="eyebrow">{{ _("Adresse") }}</span>
       <h2>{{ _("Localisation") }}</h2>
@@ -88,6 +119,12 @@
         {{ prop.address }}<br>
         {{ prop.postal_code }} {{ prop.city }}
       </address>
+      {% if prop.latitude and prop.longitude %}
+        <div id="leaflet-map" class="leaflet-map"
+             data-lat="{{ prop.latitude }}" data-lng="{{ prop.longitude }}"
+             data-title="{{ prop.title|e }}"
+             aria-label="{{ _('Carte de localisation du bien') }}"></div>
+      {% endif %}
       <p class="muted" style="font-size: .92rem;">
         {{ _("L'adresse complète est partagée après contact, en accord avec le vendeur.") }}
       </p>
@@ -139,4 +176,26 @@
     </p>
   </aside>
 </article>
+{% endblock %}
+
+{% block scripts %}
+{% if prop.latitude and prop.longitude %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+  // Initialise la carte une fois Leaflet chargé : pas de framework, pas de bundler.
+  (function () {
+    var el = document.getElementById('leaflet-map');
+    if (!el || !window.L) return;
+    var lat = parseFloat(el.dataset.lat);
+    var lng = parseFloat(el.dataset.lng);
+    var map = L.map(el, { scrollWheelZoom: false }).setView([lat, lng], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 18,
+    }).addTo(map);
+    L.marker([lat, lng]).addTo(map).bindPopup(el.dataset.title).openPopup();
+  })();
+</script>
+{% endif %}
 {% endblock %}

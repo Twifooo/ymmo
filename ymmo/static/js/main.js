@@ -66,4 +66,15 @@
       if (msg && !window.confirm(msg)) event.preventDefault();
     });
   });
+
+  /* --- 6. Cases à cocher "tout sélectionner" (bulk agent) --------- */
+  document.querySelectorAll("[data-select-all]").forEach(function (master) {
+    master.addEventListener("change", function () {
+      var form = master.form || master.closest("form");
+      if (!form) return;
+      form.querySelectorAll('input[type="checkbox"][name="property_ids"]').forEach(function (cb) {
+        cb.checked = master.checked;
+      });
+    });
+  });
 })();

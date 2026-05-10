@@ -13,9 +13,10 @@
   <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..600,30..100&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block head_extra %}{% endblock %}
 
-  {# Pre-render theme to avoid the dreaded white flash on first paint. #}
   <script>
+    /* Anti-flash : applique data-theme avant le rendu. */
     try {
       var t = localStorage.getItem('ymmo-theme');
       if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
@@ -39,7 +40,6 @@
       </button>
 
       <nav id="primary-nav" class="nav" aria-label="{{ _('Navigation principale') }}">
-        {# tools shown inside the mobile drawer too — fewer clicks #}
         <div class="nav__tools-mobile">
           <button class="icon-btn theme-toggle" type="button"
                   aria-label="{{ _('Changer de thème (clair / sombre)') }}">
@@ -69,13 +69,26 @@
             {% elif current_user.is_agent %}
               <li><a class="nav__link" href="{{ url_for('agent.dashboard') }}">{{ _("Espace agent") }}</a></li>
             {% else %}
-              <li><a class="nav__link" href="{{ url_for('client.dashboard') }}">{{ _("Mon espace") }}</a></li>
+              <li>
+                <a class="nav__link" href="{{ url_for('client.dashboard') }}">
+                  {{ _("Mon espace") }}
+                  {% if unread_alerts %}
+                    <span class="badge" aria-label="{{ _('%(n)d nouveaux biens', n=unread_alerts) }}">{{ unread_alerts }}</span>
+                  {% endif %}
+                </a>
+              </li>
             {% endif %}
           {% endif %}
         </ul>
       </nav>
 
       <div class="tools">
+        {# Bouton "Comparer" : visible quand l'utilisateur a sélectionné des biens en JS #}
+        <button class="icon-btn compare-tray-btn" type="button" hidden
+                aria-label="{{ _('Voir la sélection à comparer') }}">
+          ⊞ <span class="compare-tray-count">0</span>
+        </button>
+
         <button class="icon-btn theme-toggle" type="button"
                 aria-label="{{ _('Changer de thème (clair / sombre)') }}"
                 title="{{ _('Changer de thème') }}">
@@ -99,6 +112,18 @@
       </div>
     </div>
   </header>
+
+  {# Tiroir de comparaison flottant : géré 100% en JS via sessionStorage. #}
+  <aside class="compare-tray" id="compare-tray" hidden aria-label="{{ _('Sélection à comparer') }}">
+    <div class="wrap-lg compare-tray__inner">
+      <strong class="compare-tray__title">{{ _("Comparer") }}</strong>
+      <ul class="compare-tray__list" id="compare-tray-list"></ul>
+      <div class="compare-tray__actions">
+        <a class="btn btn--primary btn--small" id="compare-tray-go" href="#">{{ _("Comparer") }} →</a>
+        <button class="btn btn--quiet btn--small" type="button" id="compare-tray-clear">{{ _("Vider") }}</button>
+      </div>
+    </div>
+  </aside>
 
   <main id="main" tabindex="-1" class="site-main">
     <div class="wrap">
@@ -136,6 +161,7 @@
         <h4>{{ _("Réseau") }}</h4>
         <ul>
           <li><a href="{{ url_for('public.agencies') }}">{{ _("Nos agences") }}</a></li>
+          <li><a href="{{ url_for('api.health') }}">{{ _("Statut") }}</a></li>
           <li><a href="#main">{{ _("Haut de page") }}</a></li>
         </ul>
       </div>
@@ -153,11 +179,12 @@
     </div>
     <div class="wrap foot__small">
       <span>&copy; 2026 Ymmo — {{ _("Tous droits réservés.") }}</span>
-      <span>{{ _("Aix-en-Provence · 12 agences · France") }}</span>
+      <span>v{{ app_version }} · {{ _("Aix-en-Provence · 12 agences · France") }}</span>
     </div>
   </footer>
 
   <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/compare.js') }}" defer></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

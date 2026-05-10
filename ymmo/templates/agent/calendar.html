@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Calendrier des visites — Ymmo") }}{% endblock %}
+
+{% block content %}
+{% set day_labels = [_('Lun'), _('Mar'), _('Mer'), _('Jeu'), _('Ven'), _('Sam'), _('Dim')] %}
+
+<header class="row between" style="margin-bottom: var(--s-6); align-items: end; flex-wrap: wrap; gap: var(--s-4);">
+  <div>
+    <span class="eyebrow">{{ _("Espace agent") }}</span>
+    <h1 style="margin: var(--s-2) 0 0;">{{ _("Calendrier des visites.") }}</h1>
+    <p class="muted" style="margin: var(--s-2) 0 0;">
+      {{ _("Semaine du %(d)s", d=days[0].strftime('%d/%m/%Y')) }} → {{ days[-1].strftime('%d/%m/%Y') }}
+    </p>
+  </div>
+  <div class="row" style="gap: var(--s-2);">
+    <a class="btn btn--quiet btn--small" href="{{ url_for('agent.calendar', offset=offset - 1) }}">← {{ _("Semaine précédente") }}</a>
+    <a class="btn btn--quiet btn--small" href="{{ url_for('agent.calendar') }}">{{ _("Aujourd'hui") }}</a>
+    <a class="btn btn--quiet btn--small" href="{{ url_for('agent.calendar', offset=offset + 1) }}">{{ _("Semaine suivante") }} →</a>
+    <a class="btn btn--ghost btn--small" href="{{ url_for('agent.dashboard') }}">{{ _("Retour au tableau de bord") }}</a>
+  </div>
+</header>
+
+<section class="calendar" aria-label="{{ _('Vue hebdomadaire des visites') }}">
+  {% for day in days %}
+    {% set key = day.isoformat() %}
+    <div class="calendar__day {% if day == days[0].today() %}calendar__day--today{% endif %}">
+      <div class="calendar__day-head">
+        <span class="calendar__dow">{{ day_labels[loop.index0] }}</span>
+        <span class="calendar__date">{{ day.strftime('%d') }}<small>/{{ day.strftime('%m') }}</small></span>
+      </div>
+      <ul class="calendar__events">
+        {% for v in by_day.get(key, []) %}
+          <li class="calendar__event calendar__event--{{ v.status.value }}">
+            <strong>{{ v.preferred_date.strftime('%H:%M') }}</strong>
+            <a href="{{ url_for('public.property_detail', property_id=v.property_id) }}">{{ v.property.title }}</a>
+            <small class="muted">{{ v.client.full_name }}</small>
+            <span class="tag">{{ v.status.label }}</span>
+          </li>
+        {% else %}
+          <li class="calendar__empty">—</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}

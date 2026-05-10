@@ -983,6 +983,179 @@ table.data tr:last-child td { border-bottom: 0; }
   margin: var(--s-6) 0;
 }
 @media print {
-  .topbar, .foot, .contact-card, .filters { display: none !important; }
+  .topbar, .foot, .contact-card, .filters, .compare-tray { display: none !important; }
   body { background: #fff; }
+}
+
+/* -- 26. Badges & nouveautés ---------------------------------------- */
+.badge {
+  display: inline-grid; place-items: center;
+  min-width: 18px; height: 18px;
+  padding: 0 .3rem;
+  background: var(--brick); color: #fff;
+  border-radius: var(--r-pill);
+  font-family: var(--font-mono); font-size: .65rem; font-weight: 600;
+  letter-spacing: 0;
+  margin-left: .35rem;
+}
+
+/* Carte signalée comme prix atypique (anomalie) */
+.card--flag { box-shadow: 0 0 0 2px var(--gold), var(--shadow-2); }
+.card__chip--warn {
+  position: absolute; top: var(--s-3); right: var(--s-3);
+  background: var(--gold); color: var(--ink); border-color: var(--gold);
+}
+
+/* Surligne la ligne de tableau correspondant à un bien atypique */
+.data__row--flagged { background: color-mix(in oklab, var(--gold) 10%, transparent); }
+.data__row--flagged:hover { background: color-mix(in oklab, var(--gold) 18%, transparent) !important; }
+
+/* -- 27. Charts SVG ------------------------------------------------- */
+.chart {
+  margin: 0;
+  padding: var(--s-4);
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-3);
+  color: var(--ink);
+}
+.chart svg { width: 100%; height: auto; display: block; }
+.chart__legend {
+  display: flex; flex-wrap: wrap; gap: var(--s-4);
+  padding-top: var(--s-3);
+  font-family: var(--font-mono); font-size: .75rem;
+  color: var(--ink-soft);
+}
+.chart__legend-item { display: inline-flex; align-items: center; gap: .4rem; }
+.chart__swatch {
+  display: inline-block; width: 10px; height: 10px; border-radius: 2px;
+}
+
+/* -- 28. Calendar (vue agent) -------------------------------------- */
+.calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+@media (max-width: 800px) {
+  .calendar { grid-template-columns: 1fr 1fr; }
+}
+.calendar__day {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-2);
+  min-height: 220px;
+  display: flex; flex-direction: column;
+}
+.calendar__day--today { border-color: var(--brick); box-shadow: 0 0 0 2px color-mix(in oklab, var(--brick) 20%, transparent); }
+.calendar__day-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: var(--s-3); border-bottom: 1px solid var(--rule);
+}
+.calendar__dow {
+  font-family: var(--font-mono); font-size: .7rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft);
+}
+.calendar__date {
+  font-family: var(--font-display); font-size: 1.5rem; line-height: 1;
+}
+.calendar__date small { color: var(--ink-soft); font-size: .7rem; }
+.calendar__events {
+  list-style: none; padding: var(--s-2); margin: 0;
+  display: grid; gap: var(--s-2);
+  flex: 1;
+}
+.calendar__event {
+  display: grid; gap: 2px;
+  padding: var(--s-2);
+  background: var(--paper-2); border-radius: var(--r-1);
+  font-size: .82rem;
+  border-left: 3px solid var(--ink-soft);
+}
+.calendar__event--confirmed { border-left-color: var(--moss); }
+.calendar__event--pending   { border-left-color: var(--gold); }
+.calendar__event--cancelled { border-left-color: var(--danger); opacity: .55; }
+.calendar__event--done      { border-left-color: var(--ink); opacity: .55; }
+.calendar__event a { text-decoration: none; }
+.calendar__empty { color: var(--ink-soft); text-align: center; padding: var(--s-3); font-size: .85rem; }
+
+/* -- 29. Timeline (avancement transaction côté client) ------------- */
+.timeline {
+  list-style: none; padding: 0; margin: 0;
+  display: grid; gap: var(--s-3);
+}
+.timeline li {
+  display: grid;
+  grid-template-columns: 1.5rem 1fr;
+  gap: var(--s-3);
+  padding-bottom: var(--s-3);
+  border-left: 2px solid var(--rule);
+  padding-left: var(--s-4);
+  margin-left: 6px;
+  position: relative;
+}
+.timeline__dot {
+  position: absolute; left: -7px; top: 4px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--paper); border: 2px solid var(--rule);
+}
+.timeline li.is-done .timeline__dot { background: var(--brick); border-color: var(--brick-deep); }
+.timeline li.is-done strong { color: var(--ink); }
+.timeline li:not(.is-done) strong { color: var(--ink-soft); font-weight: 500; }
+.timeline small { display: block; color: var(--ink-soft); font-family: var(--font-mono); font-size: .75rem; }
+
+/* -- 30. Compare tray + table -------------------------------------- */
+.compare-tray {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  background: var(--ink); color: var(--paper);
+  border-top: 1px solid color-mix(in oklab, var(--paper) 18%, transparent);
+  z-index: 70;
+  box-shadow: 0 -10px 30px -20px rgba(0, 0, 0, .6);
+}
+.compare-tray__inner {
+  display: flex; align-items: center; gap: var(--s-4);
+  padding: var(--s-3) 0;
+  flex-wrap: wrap;
+}
+.compare-tray__title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+.compare-tray__list {
+  list-style: none; padding: 0; margin: 0;
+  display: flex; gap: var(--s-2); flex-wrap: wrap; flex: 1;
+}
+.compare-tray__list li {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .35rem .8rem;
+  background: color-mix(in oklab, var(--paper) 14%, transparent);
+  border-radius: var(--r-pill);
+  font-size: .85rem;
+}
+.compare-tray__list li button {
+  background: transparent; color: var(--paper); border: 0; cursor: pointer;
+  font-size: 1rem; padding: 0; line-height: 1;
+}
+.compare-tray__actions { display: flex; gap: var(--s-2); }
+.compare-tray .btn--quiet { background: color-mix(in oklab, var(--paper) 12%, transparent); color: var(--paper); }
+
+.compare-btn[aria-pressed="true"] {
+  background: var(--ink); color: var(--paper); border-color: var(--ink);
+}
+
+.compare-table th[scope="row"] {
+  font-family: var(--font-mono); font-size: .75rem;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--ink-soft); width: 14rem;
+  background: var(--paper-2);
+}
+
+/* -- 31. Leaflet map ----------------------------------------------- */
+.leaflet-map {
+  width: 100%;
+  height: 320px;
+  border-radius: var(--r-3);
+  border: 1px solid var(--rule);
+  margin-top: var(--s-3);
+  z-index: 0; /* reste sous la topbar sticky */
 }

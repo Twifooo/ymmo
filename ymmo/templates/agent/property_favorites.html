@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}{{ _("Favoris") }} — {{ prop.title }}{% endblock %}
+
+{% block content %}
+<header class="stack" style="margin-bottom: var(--s-6);">
+  <span class="eyebrow">{{ _("Espace agent") }}</span>
+  <h1>{{ _("Clients ayant mis ce bien en favori.") }}</h1>
+  <p class="lead">
+    <a href="{{ url_for('public.property_detail', property_id=prop.id) }}">{{ prop.title }}</a> · {{ prop.city }}
+  </p>
+</header>
+
+{% if favorites %}
+  <div class="table-wrap">
+    <table class="data">
+      <thead><tr><th>{{ _("Client") }}</th><th>{{ _("Email") }}</th><th>{{ _("Téléphone") }}</th></tr></thead>
+      <tbody>
+        {% for u in favorites %}
+          <tr>
+            <td>{{ u.full_name }}</td>
+            <td><a href="mailto:{{ u.email }}">{{ u.email }}</a></td>
+            <td>{{ u.phone or '—' }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% else %}
+  <p class="muted">{{ _("Aucun client n'a encore ajouté ce bien à ses favoris.") }}</p>
+{% endif %}
+
+<p style="margin-top: var(--s-5);">
+  <a class="btn btn--quiet" href="{{ url_for('agent.dashboard') }}">← {{ _("Retour au tableau de bord") }}</a>
+</p>
+{% endblock %}

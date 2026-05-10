@@ -1,27 +1,91 @@
 {% extends "base.html" %}
+{% from "_macros.html" import pagination %}
 {% block title %}{{ _("Administration — Ymmo") }}{% endblock %}
 
 {% block content %}
-<header class="stack" style="margin-bottom: var(--s-6);">
-  <span class="eyebrow">{{ _("Administration") }}</span>
-  <h1>{{ _("Console d'administration.") }}</h1>
+<header class="row between" style="margin-bottom: var(--s-6); align-items: end; flex-wrap: wrap; gap: var(--s-4);">
+  <div>
+    <span class="eyebrow">{{ _("Administration") }}</span>
+    <h1 style="margin: var(--s-2) 0 0;">{{ _("Console d'administration.") }}</h1>
+  </div>
+  <div class="row" style="gap: var(--s-2);">
+    <a class="btn btn--quiet btn--small" href="{{ url_for('admin.export_transactions_csv') }}">⤓ {{ _("Export transactions (CSV)") }}</a>
+    <a class="btn btn--quiet btn--small" href="{{ url_for('agent.export_properties_csv') }}">⤓ {{ _("Export biens (CSV)") }}</a>
+  </div>
 </header>
 
 {% set kpis = dashboard.kpis %}
 <section class="kpis">
-  <div class="kpi"><div class="kpi__num">{{ users | length }}</div><div class="kpi__label">{{ _("Utilisateurs") }}</div></div>
+  <div class="kpi"><div class="kpi__num">{{ users_total }}</div><div class="kpi__label">{{ _("Utilisateurs") }}</div></div>
   <div class="kpi"><div class="kpi__num">{{ agencies | length }}</div><div class="kpi__label">{{ _("Agences") }}</div></div>
   <div class="kpi"><div class="kpi__num">{{ kpis.total_count or 0 }}</div><div class="kpi__label">{{ _("Transactions") }}</div></div>
   <div class="kpi"><div class="kpi__num">{{ kpis.signed_count or 0 }}</div><div class="kpi__label">{{ _("Signées") }}</div></div>
 </section>
 
+<section class="section" aria-labelledby="ranking-title">
+  <div class="section__head">
+    <div>
+      <span class="section-num">01 — {{ _("Performance") }}</span>
+      <h2 id="ranking-title">{{ _("Classement des agents.") }}</h2>
+    </div>
+  </div>
+  <p class="muted" style="margin-bottom: var(--s-4);">
+    {{ _("Tri : ventes signées DESC, panier moyen DESC, durée du cycle ASC.") }}
+  </p>
+  {% if ranking %}
+    <div class="table-wrap">
+      <table class="data">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>{{ _("Agent") }}</th>
+            <th>{{ _("Ventes") }}</th>
+            <th>{{ _("Panier moyen") }}</th>
+            <th>{{ _("CA total") }}</th>
+            <th>{{ _("Cycle moyen") }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in ranking %}
+            <tr>
+              <td><strong>{{ loop.index }}</strong></td>
+              <td>{{ r.agent_name or '—' }}</td>
+              <td>{{ r.sold }}</td>
+              <td>{{ "{:,.0f}".format(r.avg_value).replace(',', ' ') }} €</td>
+              <td>{{ "{:,.0f}".format(r.total_value).replace(',', ' ') }} €</td>
+              <td>{{ r.avg_days }} {{ _("j") }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="muted">{{ _("Pas encore assez de transactions signées pour calculer un classement.") }}</p>
+  {% endif %}
+</section>
+
 <section class="section" aria-labelledby="users-title">
   <div class="section__head">
     <div>
-      <span class="section-num">01 — {{ _("Comptes") }}</span>
-      <h2 id="users-title">{{ _("Utilisateurs.") }}</h2>
+      <span class="section-num">02 — {{ _("Comptes") }}</span>
+      <h2 id="users-title">{{ _("Utilisateurs.") }} <small class="muted" style="font-family: var(--font-mono); font-size: .7em;">({{ users_total }})</small></h2>
     </div>
   </div>
+
+  <form method="get" action="{{ url_for('admin.dashboard') }}" class="row" style="margin-bottom: var(--s-4); gap: var(--s-3);">
+    <input type="search" name="q" value="{{ users_query }}" placeholder="{{ _('Recherche par nom ou email…') }}" style="max-width: 360px;">
+    <select name="role" data-auto-submit aria-label="{{ _('Filtrer par rôle') }}">
+      <option value="">{{ _("Tous les rôles") }}</option>
+      <option value="client" {% if users_role == 'client' %}selected{% endif %}>{{ _("Client") }}</option>
+      <option value="agent"  {% if users_role == 'agent' %}selected{% endif %}>{{ _("Agent immobilier") }}</option>
+      <option value="admin"  {% if users_role == 'admin' %}selected{% endif %}>{{ _("Administrateur") }}</option>
+    </select>
+    <button class="btn btn--primary btn--small" type="submit">{{ _("Filtrer") }}</button>
+    {% if users_query or users_role %}
+      <a class="btn btn--quiet btn--small" href="{{ url_for('admin.dashboard') }}">{{ _("Réinitialiser") }}</a>
+    {% endif %}
+  </form>
+
   <div class="table-wrap">
     <table class="data">
       <thead><tr><th>{{ _("Nom") }}</th><th>{{ _("Email") }}</th><th>{{ _("Rôle") }}</th><th>{{ _("Agence") }}</th><th>{{ _("Statut") }}</th><th>{{ _("Actions") }}</th></tr></thead>
@@ -73,12 +137,15 @@
       </tbody>
     </table>
   </div>
+
+  {{ pagination(users_page, users_pages, 'admin.dashboard',
+                {'q': users_query, 'role': users_role}) }}
 </section>
 
 <section class="section" aria-labelledby="new-agent-title">
   <div class="section__head">
     <div>
-      <span class="section-num">02 — {{ _("Nouveaux comptes") }}</span>
+      <span class="section-num">03 — {{ _("Nouveaux comptes") }}</span>
       <h2 id="new-agent-title">{{ _("Créer un agent.") }}</h2>
     </div>
   </div>
@@ -105,7 +172,7 @@
 <section class="section" aria-labelledby="market-title">
   <div class="section__head">
     <div>
-      <span class="section-num">03 — {{ _("Marché") }}</span>
+      <span class="section-num">04 — {{ _("Marché") }}</span>
       <h2 id="market-title">{{ _("Aperçu marché.") }}</h2>
     </div>
     <a href="{{ url_for('public.market') }}" class="btn btn--ghost btn--small">
